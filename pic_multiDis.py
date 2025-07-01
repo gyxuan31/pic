@@ -5,26 +5,25 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_UE.mat')
+params = loadmat('multi_distance.mat')
 
 T = int(params['T'].squeeze())
 num_RU = int(params['num_RU'].squeeze())
 num_RB = int(params['num_RB'].squeeze())
 num_ref = int(params['num_ref'].squeeze())
 gamma = params['gamma'].squeeze()
-num_setreq = int(params['num_setreq'].squeeze())
 B = float(params['B'].squeeze())
 P = params['P'].squeeze()
 sigmsqr = params['sigmsqr'].squeeze()
 eta = float(params['eta'].squeeze())
 predicted_len = int(params['predicted_len'].squeeze())
 rayleigh_gain = params['rayleigh_gain']
-multi_num_UE = params['multi_num_UE'].squeeze()
+total_UE = params['total_UE'].squeeze()
 
 distance = params['multi_distance_true'].squeeze()
 
 # load output
-output = loadmat('multi_output.mat')
+output = loadmat('multiDis_output.mat')
 multi_rec_dr_random = output['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg = output['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op = output['multi_rec_dr_op'].squeeze()
@@ -39,9 +38,7 @@ dr_random = []
 dr_avg = []
 dr_op = []
 
-for a in range(3):
-    total_UE = multi_num_UE[a] * num_RU
-
+for a in range(2):
     util_random = []
     util_avg = []
     util_op = []
@@ -82,7 +79,6 @@ multi_rec_e_avg1 = output1['multi_rec_e_avg'].squeeze()
 multi_rec_e_op1 = output1['multi_rec_e_op'].squeeze()
 
 for a in range(3,5):
-    total_UE = multi_num_UE[a] * num_RU
 
     util_random = []
     util_avg = []
@@ -90,8 +86,8 @@ for a in range(3,5):
 
     for t in range(13, T - num_ref):
         e_op = np.array(multi_rec_e_op1[a,t,:total_UE,:]) #(T, total_UE, num_RB)
-        e_random = np.array(multi_rec_e_random[a,t,:total_UE,:])
-        e_avg =  np.array(multi_rec_e_avg[a,t,:total_UE,:])
+        e_random = np.array(multi_rec_e_random1[a,t,:total_UE,:])
+        e_avg =  np.array(multi_rec_e_avg1[a,t,:total_UE,:])
         # RANDOM
         util_random_list = np.any(e_random, axis=0)  # (num_RB,)
         temp = np.sum(util_random_list)
@@ -111,10 +107,9 @@ for a in range(3,5):
     util_avg_mean.append(np.mean(np.array(util_avg)))
 
     dr_op.append(multi_rec_dr_op1[a-3] / total_UE)
-    dr_avg.append(multi_rec_dr_avg[a] / total_UE)
-    dr_random.append(multi_rec_dr_random[a] / total_UE)
-print(dr_op)
-print(dr_avg)
+    dr_avg.append(multi_rec_dr_avg1[a-3] / total_UE)
+    dr_random.append(multi_rec_dr_random1[a-3] / total_UE)
+    
 # Plot - Utilization
 plt.figure()
 plt.plot(util_random_mean, label='Random', marker='D', markersize=6, color='#3480b8')
@@ -122,8 +117,8 @@ plt.plot(util_avg_mean, label='Average', marker='D', markersize=6, color='#8fbc8
 plt.plot(util_op_mean, label='MPC', marker='D', markersize=6, color='#c82423')
 plt.xlabel('UE number')
 plt.ylabel('RB Utilization (%)')
-xtick = [multi_num_UE[a]*num_RU for a in range(len(multi_num_UE))]
-plt.xticks([a for a in range(len(multi_num_UE))], xtick)
+xtick = [total_UE for a in range(6)]
+plt.xticks([a for a in range(6)], xtick)
 plt.legend(loc='lower right')
 plt.show()
 
@@ -134,8 +129,8 @@ plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
 plt.xlabel('UE number')
 plt.ylabel('Geometric Mean of Data Rate')
-xtick = [multi_num_UE[a]*num_RU for a in range(len(multi_num_UE))]
-plt.xticks([a for a in range(len(multi_num_UE))], xtick)
+xtick = [total_UE for a in range(6)]
+plt.xticks([a for a in range(6)], xtick)
 plt.legend()
 plt.show()
 
@@ -143,11 +138,10 @@ plt.show()
 fig, axes = plt.subplots(1, num_RU, constrained_layout=True)
 
 for rho in range(num_RU):
-    util_ru_op = np.zeros(len(multi_num_UE))
-    util_ru_random = np.zeros(len(multi_num_UE))
-    util_ru_avg = np.zeros(len(multi_num_UE))
+    util_ru_op = np.zeros(6)
+    util_ru_random = np.zeros(6)
+    util_ru_avg = np.zeros(6)
     for a in range(5): # len(multi_num_UE)
-        total_UE = int(multi_num_UE[a] * num_RU)
         dist = distance[a,:,:total_UE,:].reshape((T, total_UE, num_RU))
 
         util_random = []
@@ -213,7 +207,7 @@ for rho in range(num_RU):
     ax.set_xlabel('UE number')
     ax.set_ylabel('RB Utilization (%)')
     ax.grid(True)
-    ax.set_xticks([a for a in range(len(multi_num_UE))])
+    ax.set_xticks([a for a in range(6)])
     ax.set_xticklabels(xtick)
     
 axes[rho].legend(loc='upper right')
