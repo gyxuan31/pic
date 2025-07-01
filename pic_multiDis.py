@@ -8,6 +8,7 @@ np.set_printoptions(precision=2, suppress=True)
 params = loadmat('multi_distance.mat')
 
 T = int(params['T'].squeeze())
+T_ref = 20
 num_RU = int(params['num_RU'].squeeze())
 num_RB = int(params['num_RB'].squeeze())
 num_ref = int(params['num_ref'].squeeze())
@@ -43,7 +44,7 @@ for a in range(2):
     util_avg = []
     util_op = []
 
-    for t in range(T - num_ref):
+    for t in range(T_ref - num_ref):
         e_op = np.array(multi_rec_e_op[a,t,:total_UE,:]) #(T, total_UE, num_RB)
         e_random = np.array(multi_rec_e_random[a,t,:total_UE,:])
         e_avg =  np.array(multi_rec_e_avg[a,t,:total_UE,:])
@@ -70,7 +71,7 @@ for a in range(2):
     dr_random.append(multi_rec_dr_random[a] / total_UE)
 
 # load output
-output1 = loadmat('multi_output1.mat')
+output1 = loadmat('multiDis_output1.mat')
 multi_rec_dr_random1 = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg1 = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op1 = output1['multi_rec_dr_op'].squeeze()
@@ -78,13 +79,13 @@ multi_rec_e_random1 = output1['multi_rec_e_random'].squeeze()
 multi_rec_e_avg1 = output1['multi_rec_e_avg'].squeeze()
 multi_rec_e_op1 = output1['multi_rec_e_op'].squeeze()
 
-for a in range(3,5):
+for a in range(2,6):
 
     util_random = []
     util_avg = []
     util_op = []
 
-    for t in range(13, T - num_ref):
+    for t in range(T_ref - num_ref):
         e_op = np.array(multi_rec_e_op1[a,t,:total_UE,:]) #(T, total_UE, num_RB)
         e_random = np.array(multi_rec_e_random1[a,t,:total_UE,:])
         e_avg =  np.array(multi_rec_e_avg1[a,t,:total_UE,:])
@@ -115,9 +116,9 @@ plt.figure()
 plt.plot(util_random_mean, label='Random', marker='D', markersize=6, color='#3480b8')
 plt.plot(util_avg_mean, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(util_op_mean, label='MPC', marker='D', markersize=6, color='#c82423')
-plt.xlabel('UE number')
+plt.xlabel('Expected Speed (m/s)')
 plt.ylabel('RB Utilization (%)')
-xtick = [total_UE for a in range(6)]
+xtick = [5, 10, 20, 30, 40, 50]
 plt.xticks([a for a in range(6)], xtick)
 plt.legend(loc='lower right')
 plt.show()
@@ -127,9 +128,8 @@ plt.figure()
 plt.plot(dr_random, label='Random', marker='D', markersize=6, color='#3480b8')
 plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
-plt.xlabel('UE number')
+plt.xlabel('Expected Speed (m/s)')
 plt.ylabel('Geometric Mean of Data Rate')
-xtick = [total_UE for a in range(6)]
 plt.xticks([a for a in range(6)], xtick)
 plt.legend()
 plt.show()
@@ -141,23 +141,23 @@ for rho in range(num_RU):
     util_ru_op = np.zeros(6)
     util_ru_random = np.zeros(6)
     util_ru_avg = np.zeros(6)
-    for a in range(5): # len(multi_num_UE)
+    for a in range(6): # len(multi_num_UE)
         dist = distance[a,:,:total_UE,:].reshape((T, total_UE, num_RU))
 
         util_random = []
         util_avg = []
         util_op = []
         
-        util_op = np.zeros(T-num_ref)
-        util_random = np.zeros(T-num_ref)
-        util_avg = np.zeros(T-num_ref)
+        util_op = np.zeros(T_ref-num_ref)
+        util_random = np.zeros(T_ref-num_ref)
+        util_avg = np.zeros(T_ref-num_ref)
         
-        for t in range(13, T - num_ref):
-            if a < 3:
+        for t in range(T_ref - num_ref):
+            if a < 2:
                 e_op = np.array(multi_rec_e_op[a,t,0:total_UE,:]) #(T, total_UE, num_RB)
                 e_random = np.array(multi_rec_e_random[a,t,0:total_UE,:])
                 e_avg =  np.array(multi_rec_e_avg[a,t,0:total_UE,:])
-            if a == 3 or a == 4:
+            else:
                 e_op = np.array(multi_rec_e_op1[a,t,0:total_UE,:]) #(T, total_UE, num_RB)
                 e_random = np.array(multi_rec_e_random1[a,t,0:total_UE,:])
                 e_avg =  np.array(multi_rec_e_avg1[a,t,0:total_UE,:])
@@ -190,12 +190,13 @@ for rho in range(num_RU):
             e_o = e_op[RU_UE_norm[rho], :]
             util_op_list = np.any(e_o, axis=0)
             util_op[t] = float(np.sum(util_op_list) / float(num_RB))
-            print(np.sum(util_op_list))
-            print(util_op[t])
-        print(util_op)
+            # print(np.sum(util_op_list))
+            # print(util_op[t])
+
         util_ru_op[a] = np.mean(util_op)
         util_ru_random[a] = np.mean(np.array(util_random))
         util_ru_avg[a] = np.mean(np.array(util_avg))
+    print(util_op)
 
 
     ax = axes[rho]
@@ -204,12 +205,12 @@ for rho in range(num_RU):
     ax.plot(util_ru_op, linewidth=1.5, color='#c82423', label='MPC-based Allocation', marker='D', markersize=6)
 
     ax.set_ylim(0, 1)
-    ax.set_xlabel('UE number')
-    ax.set_ylabel('RB Utilization (%)')
+    ax.set_xlabel('Expected Speed (m/s)')
+    ax.set_ylabel(f'RB Utilization of RU {rho+1} (%)')
     ax.grid(True)
     ax.set_xticks([a for a in range(6)])
     ax.set_xticklabels(xtick)
+    print(util_ru_op)
     
 axes[rho].legend(loc='upper right')
-
 plt.show()
