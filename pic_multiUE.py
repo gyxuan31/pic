@@ -45,7 +45,7 @@ multi_rec_e_avg1 = output1['multi_rec_e_avg'].squeeze()
 multi_rec_e_op1 = output1['multi_rec_e_op'].squeeze()
 
 # load output total_UE=[6 12 24 30]
-params_sup = loadmat('multi_UE.mat')
+params_sup = loadmat('multi_UE_sup.mat')
 multi_num_UE_sup = params_sup['multi_num_UE'].squeeze()
 distance_sup = params_sup['multi_distance_true'].squeeze()
 output1 = loadmat('multi_output_sup.mat')
