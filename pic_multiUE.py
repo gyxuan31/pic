@@ -176,20 +176,6 @@ for a in range(4): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
 # print(dr_op)
 # print(dr_avg)
 
-# Plot - Utilization
-plt.figure()
-plt.plot(util_random_mean, label='Random', marker='D', markersize=6, color='#3480b8')
-plt.plot(util_avg_mean, label='Average', marker='D', markersize=6, color='#8fbc8f')
-plt.plot(util_op_mean, label='MPC', marker='D', markersize=6, color='#c82423')
-plt.xlabel('UE number')
-plt.ylabel('RB Utilization (%)')
-xtick = [a for a in num_UE]
-plt.xticks([a for a in range(len(num_UE))], xtick)
-plt.ylim((0,1.1))
-plt.legend(loc='lower right')
-plt.grid()
-plt.show()
-
 # Plot - Geometric Mean of Data Rate
 plt.figure()
 plt.plot(dr_random, label='Random', marker='D', markersize=6, color='#3480b8')
@@ -197,10 +183,31 @@ plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
 plt.xlabel('UE number')
 plt.ylabel('Geometric Mean of Data Rate')
+xtick = [a for a in num_UE]
 plt.xticks([a for a in range(len(num_UE))], xtick)
 plt.legend()
 plt.grid()
 plt.show()
+
+# Plot - Utilization
+# resource efficiency
+eff_random = dr_random/util_random_mean
+eff_avg = dr_avg/util_avg_mean
+eff_op = dr_op/util_op_mean
+
+plt.figure()
+plt.plot(eff_random, label='Random', marker='D', markersize=6, color='#3480b8')
+plt.plot(eff_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
+plt.plot(eff_op, label='MPC', marker='D', markersize=6, color='#c82423')
+plt.xlabel('UE number')
+plt.ylabel('Resource Efficiency (%)')
+
+plt.xticks([a for a in range(len(num_UE))], xtick)
+plt.legend(loc='lower right')
+plt.grid()
+plt.show()
+
+
 
 # Plot - every RU
 fig, axes = plt.subplots(1, num_RU, constrained_layout=True)

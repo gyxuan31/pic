@@ -111,27 +111,35 @@ for a in range(2,6):
     dr_avg.append(multi_rec_dr_avg1[a-3] / total_UE)
     dr_random.append(multi_rec_dr_random1[a-3] / total_UE)
     
+
 # Plot - Utilization
+# resource efficiency
+eff_random = np.array(dr_random) / np.array(util_random_mean)
+eff_avg = np.array(dr_avg) / np.array(util_avg_mean)
+eff_op = np.array(dr_op) / np.array(util_op_mean)
+
 plt.figure()
-plt.plot(util_random_mean, label='Random', marker='D', markersize=6, color='#3480b8')
-plt.plot(util_avg_mean, label='Average', marker='D', markersize=6, color='#8fbc8f')
-plt.plot(util_op_mean, label='MPC', marker='D', markersize=6, color='#c82423')
+xtick = np.array([5, 10, 20, 30, 40, 50])
+xaxis = np.array(range(len(xtick)))
+width = 0.2
+plt.bar(xaxis - width, eff_random, label='Random', color='#3480b8', width=width)
+plt.bar(xaxis, eff_avg, label='Average', color='#8fbc8f', width=width)
+plt.bar(xaxis + width, eff_op, label='MPC', color='#c82423', width=width)
 plt.xlabel('Expected Speed (m/s)')
-plt.ylabel('RB Utilization (%)')
-xtick = [5, 10, 20, 30, 40, 50]
+plt.ylabel('Resource Efficiency (%)')
 plt.xticks([a for a in range(6)], xtick)
 plt.legend(loc='lower right')
 plt.show()
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
-plt.plot(dr_random, label='Random', marker='D', markersize=6, color='#3480b8')
-plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
-plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
+plt.bar(xaxis - width, dr_random, label='Random', color='#3480b8', width=width)
+plt.bar(xaxis, dr_avg, label='Average', color='#8fbc8f', width=width)
+plt.bar(xaxis + width, dr_op, label='MPC', color='#c82423', width=width)
 plt.xlabel('Expected Speed (m/s)')
 plt.ylabel('Geometric Mean of Data Rate')
 plt.xticks([a for a in range(6)], xtick)
-plt.legend()
+plt.legend(loc='lower right')
 plt.show()
 
 # Plot - every RU
