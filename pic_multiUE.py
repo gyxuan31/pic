@@ -107,7 +107,7 @@ for a in range(3,4): # *36 total_UE=[9 18 27 / 36 45] final[6 12 18(2) 24 30 36(
     util_avg = []
     util_op = []
 
-    for t in range(13, 13+T_ref):
+    for t in range(num_ref, num_ref+T_ref):
         e_op = np.array(multi_rec_e_op1[a,t,:total_UE,:]) #(T, total_UE, num_RB)
         e_random = np.array(multi_rec_e_random[a,t,:total_UE,:])
         e_avg =  np.array(multi_rec_e_avg[a,t,:total_UE,:])
@@ -131,7 +131,7 @@ for a in range(3,4): # *36 total_UE=[9 18 27 / 36 45] final[6 12 18(2) 24 30 36(
     util_random_mean[idx] = np.mean(np.array(util_random))
     util_avg_mean[idx] = np.mean(np.array(util_avg))
 
-    dr_op[idx] = multi_rec_dr_op1[a-3] / total_UE
+    dr_op[idx] = multi_rec_dr_op1 / total_UE
     dr_avg[idx] = multi_rec_dr_avg[a] / total_UE
     dr_random[idx] = multi_rec_dr_random[a] / total_UE
 
@@ -224,7 +224,7 @@ for rho in range(num_RU):
         util_random = np.zeros(T_ref)
         util_avg = np.zeros(T_ref)
         
-        for t in range(13, T_ref+13):
+        for t in range(num_ref, T_ref+num_ref):
             if a < 3:
                 e_op = np.array(multi_rec_e_op[a,t,0:total_UE,:]) #(T, total_UE, num_RB)
                 e_random = np.array(multi_rec_e_random[a,t,0:total_UE,:])
