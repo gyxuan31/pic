@@ -7,9 +7,9 @@ from scipy.io import savemat
 np.random.seed(1)
 
 num_ref = 5
-predicted_len = 3
+predicted_len = 1
 num_RU = 3
-num_RB = 35 # num RB/RU
+num_RB = 30 # num RB/RU
 
 T = 55
 
@@ -20,7 +20,7 @@ P = 0.3
 sigmsqr = 10**((-173 - 30)/10)
 eta = 2
 
-multi_num_UE = [2, 4, 8, 10] # UERU, under one RU 6 12 18 24 30 36
+multi_num_UE = [1, 4, 8, 10] # UERU, under one RU 6 12 18 24 30 36
 # distance_true.shape(T, total_UE, num_RU)
 # prediction.shape(T-num_ref, predicted_len, total_UE, num_RU)
 multi_distance_true = np.zeros((len(multi_num_UE), T, multi_num_UE[-1]*num_RU, num_RU),dtype=float) # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)

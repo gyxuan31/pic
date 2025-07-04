@@ -36,13 +36,17 @@ multi_prediction = np.zeros((len(multi_distance), T-num_ref, predicted_len, tota
 
 for a in range(len(multi_distance)):
     # Location
-    locrux = [-5, 0, 5]
-    locruy = [-5, 0, 5]
+    locrux = [-5, 0, 30]
+    locruy = [-5, 0, 30]
     locux = np.random.randn(total_UE) * multi_distance[a] - multi_distance[a]/2
     locuy = np.random.randn(total_UE) * multi_distance[a] - multi_distance[a]/2
-    # plt.scatter(locrux,locruy)
-    # plt.scatter(locux,locuy)
-    # plt.show()
+
+    plt.scatter(locux,locuy, s=30)
+    plt.scatter(locrux,locruy, s=50)
+    plt.ylim([-60,60])
+    plt.xlim([-60,60])
+    plt.grid()
+    plt.show()
     trajectory_x = np.zeros((T, total_UE)) # shape(sequence_length, total_UE)
     trajectory_y = np.zeros((T, total_UE))
 
@@ -51,18 +55,18 @@ for a in range(len(multi_distance)):
     trajectory_y[0] = locuy
     for t in range(1, T):
         for i in range(total_UE):
-            move_x = np.random.uniform(-1, 1)
-            move_y = np.random.uniform(-1, 1)
+            move_x = np.random.uniform(-1, 1) * multi_distance[a]
+            move_y = np.random.uniform(-1, 1) * multi_distance[a]
             trajectory_x[t, i] = trajectory_x[t - 1, i] + move_x
             trajectory_y[t, i] = trajectory_y[t - 1, i] + move_y
             
     # Plot trajectory
-    # for i in range(total_UE):
-    #     plt.plot(trajectory_x.T[i], trajectory_y.T[i])
-    # plt.scatter(locrux, locruy)
-    # plt.title('UE Trajectory')
-    # plt.grid()
-    # plt.show()
+    for i in range(total_UE):
+        plt.plot(trajectory_x.T[i], trajectory_y.T[i])
+    plt.scatter(locrux, locruy)
+    plt.title('UE Trajectory')
+    plt.grid()
+    plt.show()
 
     # Distance
     distance_true = np.zeros((T, total_UE, num_RU))
@@ -173,8 +177,10 @@ savemat('multi_distance.mat', {
     'multi_prediction': multi_prediction
     })
 
-print(multi_distance_true.shape)
-print(multi_prediction.shape)
+np.set_printoptions(threshold=np.inf)
+print(multi_distance_true)
+# print(multi_prediction.shape)
+
 
 plt.figure() # prediction & true distance
 pred_array = np.array(prediction)  # shape: (T - num_ref, predicted_len, total_UE, num_RU)
@@ -185,7 +191,6 @@ for i in range(pred_array.shape[0] - predicted_len + 1):
 plt.plot(pred_distance, 'b', label='Predicted Distance')
 true_distance = distance_true[num_ref:num_ref + (T - num_ref - predicted_len + 1),1,1]  # (T - num_ref - predicted_len + 1,)
 plt.plot(true_distance.flatten(), 'r--', label='True Distance')
-
 plt.xlabel("Time Step")
 plt.ylabel("Distance")
 plt.xticks(np.arange(0, len(true_distance)+1, 3))

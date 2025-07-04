@@ -187,7 +187,6 @@ xtick = [a for a in num_UE]
 plt.xticks([a for a in range(len(num_UE))], xtick)
 plt.legend()
 plt.grid()
-plt.show()
 
 # Plot - Utilization
 # resource efficiency
@@ -200,7 +199,7 @@ plt.plot(eff_random, label='Random', marker='D', markersize=6, color='#3480b8')
 plt.plot(eff_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(eff_op, label='MPC', marker='D', markersize=6, color='#c82423')
 plt.xlabel('UE number')
-plt.ylabel('Resource Efficiency (%)')
+plt.ylabel('Resource Efficiency')
 
 plt.xticks([a for a in range(len(num_UE))], xtick)
 plt.legend(loc='lower right')

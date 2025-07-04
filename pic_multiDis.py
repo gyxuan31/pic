@@ -24,13 +24,13 @@ total_UE = params['total_UE'].squeeze()
 distance = params['multi_distance_true'].squeeze()
 
 # load output
-output = loadmat('multiDis_output.mat')
-multi_rec_dr_random = output['multi_rec_dr_random'].squeeze()
-multi_rec_dr_avg = output['multi_rec_dr_avg'].squeeze()
-multi_rec_dr_op = output['multi_rec_dr_op'].squeeze()
-multi_rec_e_random = output['multi_rec_e_random'].squeeze()
-multi_rec_e_avg = output['multi_rec_e_avg'].squeeze()
-multi_rec_e_op = output['multi_rec_e_op'].squeeze()
+# output = loadmat('multiDis_output.mat')
+# multi_rec_dr_random = output['multi_rec_dr_random'].squeeze()
+# multi_rec_dr_avg = output['multi_rec_dr_avg'].squeeze()
+# multi_rec_dr_op = output['multi_rec_dr_op'].squeeze()
+# multi_rec_e_random = output['multi_rec_e_random'].squeeze()
+# multi_rec_e_avg = output['multi_rec_e_avg'].squeeze()
+# multi_rec_e_op = output['multi_rec_e_op'].squeeze()
 
 util_op_mean = []
 util_random_mean = []
@@ -39,39 +39,39 @@ dr_random = []
 dr_avg = []
 dr_op = []
 
-for a in range(2):
-    util_random = []
-    util_avg = []
-    util_op = []
+# for a in range(2):
+#     util_random = []
+#     util_avg = []
+#     util_op = []
 
-    for t in range(T_ref - num_ref):
-        e_op = np.array(multi_rec_e_op[a,t,:total_UE,:]) #(T, total_UE, num_RB)
-        e_random = np.array(multi_rec_e_random[a,t,:total_UE,:])
-        e_avg =  np.array(multi_rec_e_avg[a,t,:total_UE,:])
-        # RANDOM
-        util_random_list = np.any(e_random, axis=0)  # (num_RB,)
-        temp = np.sum(util_random_list)
-        util_random.append(temp / float(num_RB))
+#     for t in range(T_ref - num_ref):
+#         e_op = np.array(multi_rec_e_op[a,t,:total_UE,:]) #(T, total_UE, num_RB)
+#         e_random = np.array(multi_rec_e_random[a,t,:total_UE,:])
+#         e_avg =  np.array(multi_rec_e_avg[a,t,:total_UE,:])
+#         # RANDOM
+#         util_random_list = np.any(e_random, axis=0)  # (num_RB,)
+#         temp = np.sum(util_random_list)
+#         util_random.append(temp / float(num_RB))
 
-        # AVG
-        util_avg_list = np.any(e_avg, axis=0)
-        util_avg.append(np.sum(util_avg_list) / float(num_RB))
+#         # AVG
+#         util_avg_list = np.any(e_avg, axis=0)
+#         util_avg.append(np.sum(util_avg_list) / float(num_RB))
 
-        # OP
-        util_op_list = np.any(e_op, axis=0)
-        util_op.append(np.sum(util_op_list) / float(num_RB))
-        # print(np.sum(util_op_list))
+#         # OP
+#         util_op_list = np.any(e_op, axis=0)
+#         util_op.append(np.sum(util_op_list) / float(num_RB))
+#         # print(np.sum(util_op_list))
     
-    util_op_mean.append(np.mean(np.array(util_op)))
-    util_random_mean.append(np.mean(np.array(util_random)))
-    util_avg_mean.append(np.mean(np.array(util_avg)))
+#     util_op_mean.append(np.mean(np.array(util_op)))
+#     util_random_mean.append(np.mean(np.array(util_random)))
+#     util_avg_mean.append(np.mean(np.array(util_avg)))
     
-    dr_op.append(multi_rec_dr_op[a] / total_UE)
-    dr_avg.append(multi_rec_dr_avg[a] / total_UE)
-    dr_random.append(multi_rec_dr_random[a] / total_UE)
+#     dr_op.append(multi_rec_dr_op[a] / total_UE)
+#     dr_avg.append(multi_rec_dr_avg[a] / total_UE)
+#     dr_random.append(multi_rec_dr_random[a] / total_UE)
 
 # load output
-output1 = loadmat('multiDis_output1.mat')
+output1 = loadmat('multiDis_output2.mat')
 multi_rec_dr_random1 = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg1 = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op1 = output1['multi_rec_dr_op'].squeeze()
@@ -79,14 +79,14 @@ multi_rec_e_random1 = output1['multi_rec_e_random'].squeeze()
 multi_rec_e_avg1 = output1['multi_rec_e_avg'].squeeze()
 multi_rec_e_op1 = output1['multi_rec_e_op'].squeeze()
 
-for a in range(2,6):
+for a in range(6):
 
     util_random = []
     util_avg = []
     util_op = []
 
-    for t in range(T_ref - num_ref):
-        e_op = np.array(multi_rec_e_op1[a,t,:total_UE,:]) #(T, total_UE, num_RB)
+    for t in range(num_ref, T_ref + num_ref):
+        e_op = np.array(multi_rec_e_op1[a,t-num_ref,:total_UE,:]) #(T, total_UE, num_RB)
         e_random = np.array(multi_rec_e_random1[a,t,:total_UE,:])
         e_avg =  np.array(multi_rec_e_avg1[a,t,:total_UE,:])
         # RANDOM
@@ -107,13 +107,12 @@ for a in range(2,6):
     util_random_mean.append(np.mean(np.array(util_random)))
     util_avg_mean.append(np.mean(np.array(util_avg)))
 
-    dr_op.append(multi_rec_dr_op1[a-3] / total_UE)
-    dr_avg.append(multi_rec_dr_avg1[a-3] / total_UE)
-    dr_random.append(multi_rec_dr_random1[a-3] / total_UE)
+    dr_op.append(multi_rec_dr_op1[a] / total_UE)
+    dr_avg.append(multi_rec_dr_avg1[a] / total_UE)
+    dr_random.append(multi_rec_dr_random1[a] / total_UE)
     
 
-# Plot - Utilization
-# resource efficiency
+# Plot - resource efficiency
 eff_random = np.array(dr_random) / np.array(util_random_mean)
 eff_avg = np.array(dr_avg) / np.array(util_avg_mean)
 eff_op = np.array(dr_op) / np.array(util_op_mean)
@@ -126,10 +125,10 @@ plt.bar(xaxis - width, eff_random, label='Random', color='#3480b8', width=width)
 plt.bar(xaxis, eff_avg, label='Average', color='#8fbc8f', width=width)
 plt.bar(xaxis + width, eff_op, label='MPC', color='#c82423', width=width)
 plt.xlabel('Expected Speed (m/s)')
-plt.ylabel('Resource Efficiency (%)')
+plt.ylabel('Resource Efficiency')
 plt.xticks([a for a in range(6)], xtick)
 plt.legend(loc='lower right')
-plt.show()
+
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
@@ -161,16 +160,10 @@ for rho in range(num_RU):
         util_avg = np.zeros(T_ref-num_ref)
         
         for t in range(T_ref - num_ref):
-            if a < 2:
-                e_op = np.array(multi_rec_e_op[a,t,0:total_UE,:]) #(T, total_UE, num_RB)
-                e_random = np.array(multi_rec_e_random[a,t,0:total_UE,:])
-                e_avg =  np.array(multi_rec_e_avg[a,t,0:total_UE,:])
-            else:
-                e_op = np.array(multi_rec_e_op1[a,t,0:total_UE,:]) #(T, total_UE, num_RB)
-                e_random = np.array(multi_rec_e_random1[a,t,0:total_UE,:])
-                e_avg =  np.array(multi_rec_e_avg1[a,t,0:total_UE,:])
+            e_op = np.array(multi_rec_e_op1[a,t,0:total_UE,:]) #(T, total_UE, num_RB)
+            e_random = np.array(multi_rec_e_random1[a,t,0:total_UE,:])
+            e_avg =  np.array(multi_rec_e_avg1[a,t,0:total_UE,:])
                 
-            
             # calculate UE connect which RU
             user_RU_norm = np.zeros(total_UE, dtype=int)
             for i in range(total_UE):
