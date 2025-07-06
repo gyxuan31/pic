@@ -17,7 +17,7 @@ T = 55
 gamma = 3
 num_setreq = 3
 B = 200*1000
-P = 0.3
+P = 0.003
 sigmsqr = 10**((-173 - 30)/10)
 eta = 2
 
@@ -34,19 +34,19 @@ multi_distance = [5, 10, 20, 30, 40, 50] # UERU, under one RU
 multi_distance_true = np.zeros((len(multi_distance), T, total_UE, num_RU),dtype=float) # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)
 multi_prediction = np.zeros((len(multi_distance), T-num_ref, predicted_len, total_UE, num_RU),dtype=float) # shape(len(multi_num_UE), T, predicted_len, multi_num_UE[i], num_RU)
 
-for a in range(len(multi_distance)):
-    # Location
-    locrux = [-5, 0, 30]
-    locruy = [-5, 0, 30]
-    locux = np.random.randn(total_UE) * multi_distance[a] - multi_distance[a]/2
-    locuy = np.random.randn(total_UE) * multi_distance[a] - multi_distance[a]/2
+# Location
+locrux = [-50, 0, 200]
+locruy = [50, 0, -200]
+locux = np.random.randn(total_UE) * 10 - 5 # * multi_distance[a] - multi_distance[a]/2
+locuy = np.random.randn(total_UE) * 10 - 5 # * multi_distance[a] - multi_distance[a]/2
+plt.scatter(locux,locuy, s=30)
+plt.scatter(locrux,locruy, s=50)
+# plt.ylim([-60,60])
+# plt.xlim([-60,60])
+plt.grid()
+plt.show()
 
-    plt.scatter(locux,locuy, s=30)
-    plt.scatter(locrux,locruy, s=50)
-    plt.ylim([-60,60])
-    plt.xlim([-60,60])
-    plt.grid()
-    plt.show()
+for a in range(len(multi_distance)):
     trajectory_x = np.zeros((T, total_UE)) # shape(sequence_length, total_UE)
     trajectory_y = np.zeros((T, total_UE))
 
@@ -55,8 +55,8 @@ for a in range(len(multi_distance)):
     trajectory_y[0] = locuy
     for t in range(1, T):
         for i in range(total_UE):
-            move_x = np.random.uniform(-1, 1) * multi_distance[a]
-            move_y = np.random.uniform(-1, 1) * multi_distance[a]
+            move_x = np.random.randn() * multi_distance[a] * np.random.choice([-1,1])
+            move_y = np.random.randn() * multi_distance[a] * np.random.choice([-1,1])
             trajectory_x[t, i] = trajectory_x[t - 1, i] + move_x
             trajectory_y[t, i] = trajectory_y[t - 1, i] + move_y
             
