@@ -5,7 +5,7 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_UE.mat')
+params = loadmat('multi_UE_sup1.mat')
 
 T = int(params['T'].squeeze())
 T_ref = 20
