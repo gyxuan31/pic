@@ -39,13 +39,13 @@ for a in range(len(multi_num_UE)):
     rayleigh_gain = np.ones((total_UE, num_RB))
 
     # Location
-    locrux = [-1.732*200, 0, 1.732*200]
-    locruy = [-1*200, 2*100, -1*200]
+    locrux = [-1.732*100, 0, 1.732*100]
+    locruy = [-1*100, 2*100, -1*100]
     locux = np.random.randn(total_UE) * 50 - 25 # * multi_distance[a] - multi_distance[a]/2
     locuy = np.random.randn(total_UE) * 50 - 25 # * multi_distance[a] - multi_distance[a]/2
-    # plt.scatter(locrux,locruy)
-    # plt.scatter(locux,locuy)
-    # plt.show()
+    plt.scatter(locrux,locruy)
+    plt.scatter(locux,locuy)
+    plt.show()
     trajectory_x = np.zeros((T, total_UE)) # shape(sequence_length, total_UE)
     trajectory_y = np.zeros((T, total_UE))
 
@@ -54,16 +54,16 @@ for a in range(len(multi_num_UE)):
     trajectory_y[0] = locuy
     for t in range(1, T):
         for i in range(total_UE):
-            trajectory_x[t, i] = np.random.normal(loc=locux[i], scale=10)
-            trajectory_y[t, i] = np.random.normal(loc=locuy[i], scale=10)
+            trajectory_x[t, i] = np.random.normal(loc=0, scale=10)
+            trajectory_y[t, i] = np.random.normal(loc=0, scale=10)
                      
     # Plot trajectory
-    # for i in range(total_UE):
-    #     plt.plot(trajectory_x.T[i], trajectory_y.T[i])
-    # plt.scatter(locrux, locruy)
-    # plt.title('UE Trajectory')
-    # plt.grid()
-    # plt.show()
+    for i in range(total_UE):
+        plt.plot(trajectory_x.T[i], trajectory_y.T[i])
+    plt.scatter(locrux, locruy)
+    plt.title('UE Trajectory')
+    plt.grid()
+    plt.show()
 
     # Distance
     distance_true = np.zeros((T, total_UE, num_RU))

@@ -16,7 +16,7 @@ T = 55
 
 gamma = 3
 num_setreq = 3
-B = 200*1000
+B = 15*1000000
 P = 0.03
 sigmsqr = 10**((-173 - 30)/10)
 eta = 2
@@ -28,7 +28,7 @@ H = (X + 1j * Y) / np.sqrt(2)   # H.shape = (total_UE, num_RB)
 # rayleigh_gain = np.abs(H)**2     # |h|^2
 rayleigh_gain = np.ones((total_UE, num_RB))
     
-multi_distance = [100, 500, 1000, 2000, 3000, 4000, 5000] # UERU, under one RU
+multi_distance = [10, 100, 500, 1000, 1500, 2000, 2500] # UERU, under one RU
 # distance_true.shape(T, total_UE, num_RU)
 # prediction.shape(T-num_ref, predicted_len, total_UE, num_RU)
 multi_distance_true = np.zeros((len(multi_distance), T, total_UE, num_RU),dtype=float) # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)
@@ -55,8 +55,8 @@ for a in range(len(multi_distance)):
     trajectory_y[0] = locuy
     for t in range(1, T):
         for i in range(total_UE):
-            trajectory_x[t, i] = np.random.normal(loc=locux[i], scale=multi_distance[a])
-            trajectory_y[t, i] = np.random.normal(loc=locuy[i], scale=multi_distance[a])
+            trajectory_x[t, i] = np.random.normal(loc=0, scale=multi_distance[a])
+            trajectory_y[t, i] = np.random.normal(loc=0, scale=multi_distance[a])
             
     # Plot trajectory
     for i in range(total_UE):

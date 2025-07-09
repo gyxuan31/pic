@@ -5,28 +5,28 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_UE_sup1.mat')
+params = loadmat('multi_distance.mat')
 T = int(params['T'].squeeze())
+T_ref = 10
 num_RU = int(params['num_RU'].squeeze())
 num_RB = int(params['num_RB'].squeeze())
 num_ref = int(params['num_ref'].squeeze())
 gamma = params['gamma'].squeeze()
-num_setreq = int(params['num_setreq'].squeeze())
 B = float(params['B'].squeeze())
 P = params['P'].squeeze()
 sigmsqr = params['sigmsqr'].squeeze()
 eta = float(params['eta'].squeeze())
-predicted_len = int(params['predicted_len'].squeeze())
 rayleigh_gain = params['rayleigh_gain']
-multi_num_UE = params['multi_num_UE'].squeeze()
-distance_sup = params['multi_distance_true'].squeeze()
-num_point = len(multi_num_UE) # number of UE group
+total_UE = params['total_UE'].squeeze()
+distance = params['multi_distance_true'].squeeze()
 
-T_ref = T-num_ref
+num_point = 7
+
+# T_ref = T-num_ref
 
 # load output
 
-output1 = loadmat('multi_output_sup3.mat')
+output1 = loadmat('multiDis_output3.mat')
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
@@ -42,17 +42,16 @@ dr_avg = np.zeros(num_point)
 dr_op = np.zeros(num_point)
 
 
-for a in range(len(multi_num_UE)): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
-    total_UE = multi_num_UE[a] * num_RU
-
+for a in range(num_point):
     util_random = []
     util_avg = []
     util_op = []
 
     for t in range(T_ref):
-        e_op = np.array(multi_rec_e_op_sup[a,t,:total_UE,:]) #(T, total_UE, num_RB)
-        e_random = np.array(multi_rec_e_random_sup[a,t,:total_UE,:])
-        e_avg =  np.array(multi_rec_e_avg_sup[a,t,:total_UE,:])
+        e_op = np.array(multi_rec_e_op_sup[a,t,:,:]) #(T, total_UE, num_RB)
+        e_random = np.array(multi_rec_e_random_sup[a,t,:,:])
+        e_avg =  np.array(multi_rec_e_avg_sup[a,t,:,:])
+        # print(e_op)
         # RANDOM
         util_random_list = np.any(e_random, axis=0)  # (num_RB,)
         util_random.append(np.sum(util_random_list) / float(num_RB))
@@ -86,8 +85,8 @@ plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
 plt.xlabel('UE number')
 plt.ylabel('Geometric Mean of Data Rate')
-xtick = [a*num_RU for a in multi_num_UE]
-plt.xticks([a for a in range(len(multi_num_UE))], xtick)
+xtick = [10, 100, 500, 1000, 1500, 2000, 2500]
+plt.xticks([a for a in range(num_point)], xtick)
 plt.legend()
 plt.grid()
 
@@ -104,8 +103,8 @@ plt.plot(eff_op, label='MPC', marker='D', markersize=6, color='#c82423')
 plt.xlabel('UE number')
 plt.ylabel('Resource Efficiency')
 
-plt.xticks([a for a in range(len(multi_num_UE))], xtick)
-plt.legend(loc='upper right')
+plt.xticks([a for a in range(num_point)], xtick)
+plt.legend(loc='lower right')
 plt.grid()
 plt.show()
 
@@ -115,13 +114,12 @@ plt.show()
 fig, axes = plt.subplots(1, num_RU, constrained_layout=True)
 
 for rho in range(num_RU):
-    util_ru_op = np.zeros(len(multi_num_UE))
-    util_ru_random = np.zeros(len(multi_num_UE))
-    util_ru_avg = np.zeros(len(multi_num_UE))
+    util_ru_op = np.zeros(num_point)
+    util_ru_random = np.zeros(num_point)
+    util_ru_avg = np.zeros(num_point)
         
     for a in range(num_point): # len(multi_num_UE)
-        total_UE = int(multi_num_UE[a] * num_RU)
-        dist = distance_sup[a,:,:total_UE,:].reshape((T, total_UE, num_RU))
+        dist = distance[a,:,:total_UE,:].reshape((T, total_UE, num_RU))
 
         util_op = np.zeros(T_ref)
         util_random = np.zeros(T_ref)
@@ -174,7 +172,7 @@ for rho in range(num_RU):
     ax.set_xlabel('UE number')
     ax.set_ylabel(f'RB Utilization of RU {rho+1} (%)')
     ax.grid(True)
-    ax.set_xticks([a for a in range(len(multi_num_UE))])
+    ax.set_xticks([a for a in range(num_point)])
     ax.set_xticklabels(xtick)
     
 axes[rho].legend(loc='lower right')
