@@ -20,13 +20,13 @@ rayleigh_gain = params['rayleigh_gain']
 total_UE = params['total_UE'].squeeze()
 distance = params['multi_distance_true'].squeeze()
 
-num_point = 7
+num_point = 11
 
 # T_ref = T-num_ref
 
 # load output
 
-output1 = loadmat('multiDis_output3.mat')
+output1 = loadmat('multiDis_output2.mat')
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
@@ -80,12 +80,12 @@ for a in range(num_point):
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
-plt.plot(dr_random, label='Random', marker='D', markersize=6, color='#3480b8')
+plt.plot(dr_random, label='Random', marker='D', markersize=6, color='#3480b8') 
 plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
 plt.xlabel('UE number')
 plt.ylabel('Geometric Mean of Data Rate')
-xtick = [10, 100, 500, 1000, 1500, 2000, 2500]
+xtick = [1000, 10*1000, 20*1000, 30*1000, 40*1000, 50*1000, 60*1000, 70*1000, 80*1000, 90*1000, 100*1000]
 plt.xticks([a for a in range(num_point)], xtick)
 plt.legend()
 plt.grid()

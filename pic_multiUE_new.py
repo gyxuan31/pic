@@ -23,10 +23,11 @@ distance_sup = params['multi_distance_true'].squeeze()
 num_point = len(multi_num_UE) # number of UE group
 
 T_ref = T-num_ref
+# T_ref = 5
 
 # load output
 
-output1 = loadmat('multi_output_sup3.mat')
+output1 = loadmat('multi_output1.mat')
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
