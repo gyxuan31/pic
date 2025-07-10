@@ -20,13 +20,13 @@ rayleigh_gain = params['rayleigh_gain']
 total_UE = params['total_UE'].squeeze()
 distance = params['multi_distance_true'].squeeze()
 
-num_point = 11
+num_point = params['num_point'].squeeze()
 
 # T_ref = T-num_ref
 
 # load output
 
-output1 = loadmat('multiDis_output2.mat')
+output1 = loadmat('multiDis_output3.mat')
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
@@ -61,6 +61,7 @@ for a in range(num_point):
         util_avg.append(np.sum(util_avg_list) / float(num_RB))
 
         # OP
+        # temp = np.sum(e_op, axis=1) # test-RB num UE get
         util_op_list = np.any(e_op, axis=0)
         util_op.append(np.sum(util_op_list) / float(num_RB))
         # print(np.sum(util_op_list))
@@ -77,17 +78,17 @@ for a in range(num_point):
 
 # print(dr_op)
 # print(dr_avg)
-
+print(multi_rec_dr_op_sup)
 # Plot - Geometric Mean of Data Rate
 plt.figure()
 plt.plot(dr_random, label='Random', marker='D', markersize=6, color='#3480b8') 
 plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
-plt.xlabel('UE number')
+plt.xlabel('Coverage Area of UE')
 plt.ylabel('Geometric Mean of Data Rate')
-xtick = [1000, 10*1000, 20*1000, 30*1000, 40*1000, 50*1000, 60*1000, 70*1000, 80*1000, 90*1000, 100*1000]
+xtick = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
 plt.xticks([a for a in range(num_point)], xtick)
-plt.legend()
+plt.legend(loc='lower right')
 plt.grid()
 
 # Plot - Utilization
@@ -100,11 +101,11 @@ plt.figure()
 plt.plot(eff_random, label='Random', marker='D', markersize=6, color='#3480b8')
 plt.plot(eff_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(eff_op, label='MPC', marker='D', markersize=6, color='#c82423')
-plt.xlabel('UE number')
+plt.xlabel('Coverage Area of UE')
 plt.ylabel('Resource Efficiency')
 
 plt.xticks([a for a in range(num_point)], xtick)
-plt.legend(loc='lower right')
+plt.legend(loc='lower right') # loc='lower right'
 plt.grid()
 plt.show()
 

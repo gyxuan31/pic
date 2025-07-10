@@ -20,14 +20,15 @@ predicted_len = int(params['predicted_len'].squeeze())
 rayleigh_gain = params['rayleigh_gain']
 multi_num_UE = params['multi_num_UE'].squeeze()
 distance_sup = params['multi_distance_true'].squeeze()
-num_point = len(multi_num_UE) # number of UE group
+
+num_point = 11 #len(multi_num_UE) # number of UE group
 
 T_ref = T-num_ref
 # T_ref = 5
 
 # load output
 
-output1 = loadmat('multi_output1.mat')
+output1 = loadmat('multi_output2.mat')
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
@@ -43,7 +44,7 @@ dr_avg = np.zeros(num_point)
 dr_op = np.zeros(num_point)
 
 
-for a in range(len(multi_num_UE)): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
+for a in range(num_point): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
     total_UE = multi_num_UE[a] * num_RU
 
     util_random = []
@@ -79,6 +80,7 @@ for a in range(len(multi_num_UE)): # total_UE=[6 12 24 30] final[6 12 18(2) 24 3
 
 # print(dr_op)
 # print(dr_avg)
+print(multi_rec_dr_op_sup)
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
@@ -87,8 +89,8 @@ plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
 plt.xlabel('UE number')
 plt.ylabel('Geometric Mean of Data Rate')
-xtick = [a*num_RU for a in multi_num_UE]
-plt.xticks([a for a in range(len(multi_num_UE))], xtick)
+xtick = [a*num_RU for a in multi_num_UE[:num_point]]
+plt.xticks([a for a in range(num_point)], xtick)
 plt.legend()
 plt.grid()
 
@@ -105,7 +107,7 @@ plt.plot(eff_op, label='MPC', marker='D', markersize=6, color='#c82423')
 plt.xlabel('UE number')
 plt.ylabel('Resource Efficiency')
 
-plt.xticks([a for a in range(len(multi_num_UE))], xtick)
+plt.xticks([a for a in range(num_point)], xtick)
 plt.legend(loc='upper right')
 plt.grid()
 plt.show()
@@ -175,7 +177,7 @@ for rho in range(num_RU):
     ax.set_xlabel('UE number')
     ax.set_ylabel(f'RB Utilization of RU {rho+1} (%)')
     ax.grid(True)
-    ax.set_xticks([a for a in range(len(multi_num_UE))])
+    ax.set_xticks([a for a in range(num_point)])
     ax.set_xticklabels(xtick)
     
 axes[rho].legend(loc='lower right')

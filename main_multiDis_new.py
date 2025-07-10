@@ -28,8 +28,10 @@ Y = np.random.randn(total_UE, num_RB) # img
 H = (X + 1j * Y) / np.sqrt(2)   # H.shape = (total_UE, num_RB)
 # rayleigh_gain = np.abs(H)**2     # |h|^2
 rayleigh_gain = np.ones((total_UE, num_RB))
-    
-multi_distance = [1000, 10*1000, 20*1000, 30*1000, 40*1000, 50*1000, 60*1000, 70*1000, 80*1000, 90*1000, 100*1000] # UERU, under one RU
+
+multi_distance = [1000, 5*1000, 10*1000, 15*1000, 20*1000, 25*1000, 30*1000, 35*1000, 40*1000, 
+                  45*1000, 50*1000, 55*1000, 60*1000, 65*1000, 70*1000, 75*1000, 80*1000, 85*1000, 90*1000, 95*1000, 100*1000] # UERU, under one RU
+num_point = len(multi_distance)
 # distance_true.shape(T, total_UE, num_RU)
 # prediction.shape(T-num_ref, predicted_len, total_UE, num_RU)
 multi_distance_true = np.zeros((len(multi_distance), T, total_UE, num_RU),dtype=float) # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)
@@ -178,6 +180,7 @@ savemat('multi_distance.mat', {
     'eta': eta,
     'predicted_len': predicted_len,
     'rayleigh_gain': rayleigh_gain,
+    'num_point':num_point,
     
     'multi_distance_true': multi_distance_true,
     'multi_prediction': multi_prediction
