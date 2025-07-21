@@ -12,7 +12,7 @@ num_RU = 3
 num_RB = 25 # num RB/RU
 UERU = 2 # num of UE under every RU
 total_UE = UERU * num_RU
-T = 500
+T = 2000
 
 gamma = 3
 num_setreq = 3
@@ -166,7 +166,7 @@ for a in range(len(multi_distance)):
 
 
 
-savemat('multi_distance.mat', {
+savemat('multi_distance2000.mat', {
     'T': T,
     'num_RU': num_RU,
     'total_UE': total_UE,

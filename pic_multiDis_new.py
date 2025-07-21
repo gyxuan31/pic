@@ -6,9 +6,9 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_distance.mat')
+params = loadmat('multi_distance2000.mat') # 1 5
 T = int(params['T'].squeeze())
-T_ref = 10
+
 num_RU = int(params['num_RU'].squeeze())
 num_RB = int(params['num_RB'].squeeze())
 num_ref = int(params['num_ref'].squeeze())
@@ -25,9 +25,10 @@ num_point = params['num_point'].squeeze()
 loss = (4*np.pi*1e9/(3*1e8))**(-eta)
 
 T_ref = T-num_ref
+T_ref = 20
 # load output
 
-output1 = loadmat('multiDis_output3.mat')
+output1 = loadmat('multiDis_output6.mat')
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
@@ -38,14 +39,14 @@ multi_mean_avg = output1['multi_mean_avg'].squeeze()
 multi_mean_op = output1['multi_mean_op'].squeeze()
 multi_mean_random = output1['multi_mean_random'].squeeze()
 
-xtick = [1.00, 1.05, 1.10, 1.15, 1.20, 1.30, 1.35, 1.40, 1.45, 1.50, 1.55, 1.60, 1.65, 1.70, 1.75, 1.80, 1.85, 1.90, 1.95, 2.00]
+xtick = [1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00]
 plt.figure()
 plt.plot(multi_mean_random, label='Random', marker='D', markersize=6, color='#3480b8') 
 plt.plot(multi_mean_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(multi_mean_op, label='MPC', marker='D', markersize=6, color='#c82423')
-plt.xlabel('Coverage Area of UE')
-plt.ylabel('Geometric Mean of Data Rate')
-plt.xticks([a for a in range(num_point)], xtick)
+plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
+plt.ylabel('Mean of Data Rate')
+plt.xticks([a for a in range(0,num_point,2)], xtick)
 plt.legend(loc='lower right')
 ax = plt.gca()
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
@@ -187,14 +188,31 @@ plt.figure()
 plt.plot(dr_random, label='Random', marker='D', markersize=6, color='#3480b8') 
 plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
-plt.xlabel('Coverage Area of UE (km)')
+plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
 plt.ylabel('Geometric Mean of Data Rate (Mbps)')
 ax = plt.gca()
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
-# xtick =[100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 
-#                   700, 750, 800, 850, 900, 950, 1000, 1050, 1100, 1150, 1200]
-# xtick = [1000, 1050, 1100, 1150, 1200, 1300, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950, 2000]
-plt.xticks([a for a in range(num_point)], xtick)
+plt.xticks([a for a in range(0,num_point,2)], xtick)
+plt.legend(loc='upper right')
+plt.grid()
+
+random=[]
+avg=[]
+op=[]
+for i in range(11):
+    random.append(dr_random[i*2])
+    avg.append(dr_avg[i*2])
+    op.append(dr_op[i*2])
+plt.figure()
+plt.plot(random, label='Random', marker='D', markersize=6, color='#3480b8') 
+plt.plot(avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
+plt.plot(op, label='MPC', marker='D', markersize=6, color='#c82423')
+plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
+plt.ylabel('Geometric Mean of Data Rate (Mbps)')
+ax = plt.gca()
+ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
+# tick = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+# plt.xticks([a for a in range(6)], tick)
 plt.legend(loc='upper right')
 plt.grid()
 
@@ -204,17 +222,17 @@ eff_random = dr_random/util_random_mean
 eff_avg = dr_avg/util_avg_mean
 eff_op = dr_op/util_op_mean
 
-plt.figure()
-plt.plot(eff_random, label='Random', marker='D', markersize=6, color='#3480b8')
-plt.plot(eff_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
-plt.plot(eff_op, label='MPC', marker='D', markersize=6, color='#c82423')
-plt.xlabel('Coverage Area of UE')
-plt.ylabel('Resource Efficiency')
+# plt.figure()
+# plt.plot(eff_random, label='Random', marker='D', markersize=6, color='#3480b8')
+# plt.plot(eff_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
+# plt.plot(eff_op, label='MPC', marker='D', markersize=6, color='#c82423')
+# plt.xlabel('Coverage Area of UE')
+# plt.ylabel('Resource Efficiency')
 
-plt.xticks([a for a in range(num_point)], xtick)
-plt.legend(loc='lower right') # loc='lower right'
-plt.grid()
-plt.show()
+# plt.xticks([a for a in range(num_point)], xtick)
+# plt.legend(loc='lower right') # loc='lower right'
+# plt.grid()
+# plt.show()
 
 
 
@@ -277,12 +295,12 @@ for rho in range(num_RU):
     ax.plot(util_ru_op, linewidth=1.5, color='#c82423', label='MPC-based Allocation', marker='D', markersize=6)
 
     ax.set_ylim(0, 1)
-    ax.set_xlabel('UE number')
+    
     ax.set_ylabel(f'RB Utilization of RU {rho+1} (%)')
     ax.grid(True)
-    ax.set_xticks([a for a in range(num_point)])
+    ax.set_xticks([a for a in range(0,num_point,2)])
     ax.set_xticklabels(xtick)
-    
+axes[1].set_xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
 axes[rho].legend(loc='lower right')
 
 plt.show()
