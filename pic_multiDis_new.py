@@ -6,7 +6,7 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_distance2000.mat') # 1 5
+params = loadmat('multi_distance1.mat') # 1 5；2000 6
 T = int(params['T'].squeeze())
 
 num_RU = int(params['num_RU'].squeeze())
@@ -28,22 +28,26 @@ T_ref = T-num_ref
 T_ref = 20
 # load output
 
-output1 = loadmat('multiDis_output6.mat')
+output1 = loadmat('multiDis_output5.mat')
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
+multi_rec_dr_pso_sup = output1['multi_rec_dr_pso'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
 multi_rec_e_random_sup = output1['multi_rec_e_random'].squeeze()
+multi_rec_e_pso_sup = output1['multi_rec_e_pso'].squeeze()
 multi_rec_e_avg_sup = output1['multi_rec_e_avg'].squeeze()
 multi_rec_e_op_sup = output1['multi_rec_e_op'].squeeze()
 multi_mean_avg = output1['multi_mean_avg'].squeeze()
 multi_mean_op = output1['multi_mean_op'].squeeze()
 multi_mean_random = output1['multi_mean_random'].squeeze()
+multi_mean_pso = output1['multi_mean_pso'].squeeze()
 
 xtick = [1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00]
 plt.figure()
 plt.plot(multi_mean_random, label='Random', marker='D', markersize=6, color='#3480b8') 
 plt.plot(multi_mean_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
 plt.plot(multi_mean_op, label='MPC', marker='D', markersize=6, color='#c82423')
+plt.plot(multi_mean_pso, label='pso', marker='D', markersize=6, color='gray')
 plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
 plt.ylabel('Mean of Data Rate')
 plt.xticks([a for a in range(0,num_point,2)], xtick)
@@ -56,9 +60,11 @@ plt.show()
 util_op_mean = np.zeros(num_point)
 util_random_mean = np.zeros(num_point)
 util_avg_mean = np.zeros(num_point)
+util_pso_mean = np.zeros(num_point)
 dr_random = np.zeros(num_point)
 dr_avg = np.zeros(num_point)
 dr_op = np.zeros(num_point)
+dr_pso = np.zeros(num_point)
 
 # for a in range(num_point):
 #     print(a)
@@ -150,11 +156,13 @@ for a in range(num_point):
     util_random = []
     util_avg = []
     util_op = []
+    util_pso = []
 
     for t in range(T_ref):
         e_op = np.array(multi_rec_e_op_sup[a,t,:,:]) #(T, total_UE, num_RB)
         e_random = np.array(multi_rec_e_random_sup[a,t,:,:])
         e_avg =  np.array(multi_rec_e_avg_sup[a,t,:,:])
+        e_pso = np.array(multi_rec_e_pso_sup[a,t,:,:])
         # print(e_op)
         # RANDOM
         util_random_list = np.any(e_random, axis=0)  # (num_RB,)
@@ -170,24 +178,31 @@ for a in range(num_point):
         util_op.append(np.sum(util_op_list) / float(num_RB))
         # print(np.sum(util_op_list))
         
+        # PSO
+        util_pso_list = np.any(e_pso, axis=0)
+        util_pso.append(np.sum(util_pso_list) / float(num_RB))
+        
     idx = a
         
     util_op_mean[idx] = np.mean(np.array(util_op))
     util_random_mean[idx] = np.mean(np.array(util_random))
     util_avg_mean[idx] = np.mean(np.array(util_avg))
+    util_pso_mean[idx] = np.mean(np.array(util_pso))
 
     dr_op[idx] = (np.e ** multi_rec_dr_op_sup[a])**(1/total_UE)
     dr_avg[idx] = (np.e ** multi_rec_dr_avg_sup[a])**(1/total_UE)
     dr_random[idx] = (np.e ** multi_rec_dr_random_sup[a])**(1/total_UE)
+    dr_pso[idx] = (np.e ** multi_rec_dr_pso_sup[a])**(1/total_UE)
 
 # print(dr_op)
 # print(dr_avg)
 print(multi_rec_dr_op_sup)
 # Plot - Geometric Mean of Data Rate
 plt.figure()
-plt.plot(dr_random, label='Random', marker='D', markersize=6, color='#3480b8') 
-plt.plot(dr_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
-plt.plot(dr_op, label='MPC', marker='D', markersize=6, color='#c82423')
+plt.plot(dr_random, label='Random', marker='D', markersize=5, color='#3480b8') 
+plt.plot(dr_avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
+plt.plot(dr_pso, label='PSO', marker='D', markersize=5, color='gray')
+plt.plot(dr_op, label='MPC', marker='D', markersize=5, color='#c82423')
 plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
 plt.ylabel('Geometric Mean of Data Rate (Mbps)')
 ax = plt.gca()
@@ -196,25 +211,27 @@ plt.xticks([a for a in range(0,num_point,2)], xtick)
 plt.legend(loc='upper right')
 plt.grid()
 
-random=[]
-avg=[]
-op=[]
-for i in range(11):
-    random.append(dr_random[i*2])
-    avg.append(dr_avg[i*2])
-    op.append(dr_op[i*2])
-plt.figure()
-plt.plot(random, label='Random', marker='D', markersize=6, color='#3480b8') 
-plt.plot(avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
-plt.plot(op, label='MPC', marker='D', markersize=6, color='#c82423')
-plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
-plt.ylabel('Geometric Mean of Data Rate (Mbps)')
-ax = plt.gca()
-ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
-# tick = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
-# plt.xticks([a for a in range(6)], tick)
-plt.legend(loc='upper right')
-plt.grid()
+# random=[]
+# avg=[]
+# op=[]
+# pso=[]
+# for i in range(11):
+#     random.append(dr_random[i*2])
+#     avg.append(dr_avg[i*2])
+#     op.append(dr_op[i*2])
+#     pso.append(dr_op[i*2])
+# plt.figure()
+# plt.plot(random, label='Random', marker='D', markersize=6, color='#3480b8') 
+# plt.plot(avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
+# plt.plot(op, label='MPC', marker='D', markersize=6, color='#c82423')
+# plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
+# plt.ylabel('Geometric Mean of Data Rate (Mbps)')
+# ax = plt.gca()
+# ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
+# # tick = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+# # plt.xticks([a for a in range(6)], tick)
+# plt.legend(loc='upper right')
+# plt.grid()
 
 # Plot - Utilization
 # resource efficiency
@@ -243,6 +260,7 @@ for rho in range(num_RU):
     util_ru_op = np.zeros(num_point)
     util_ru_random = np.zeros(num_point)
     util_ru_avg = np.zeros(num_point)
+    util_ru_pso = np.zeros(num_point)
         
     for a in range(num_point): # len(multi_num_UE)
         dist = multi_distance[a,:,:total_UE,:].reshape((T, total_UE, num_RU))
@@ -250,11 +268,13 @@ for rho in range(num_RU):
         util_op = np.zeros(T_ref)
         util_random = np.zeros(T_ref)
         util_avg = np.zeros(T_ref)
+        util_pso = np.zeros(T_ref)
         
         for t in range(T_ref):
             e_op = np.array(multi_rec_e_op_sup[a,t,0:total_UE,:]) #(T, total_UE, num_RB)
             e_random = np.array(multi_rec_e_random_sup[a,t,0:total_UE,:])
             e_avg =  np.array(multi_rec_e_avg_sup[a,t,0:total_UE,:])
+            e_pso =  np.array(multi_rec_e_pso_sup[a,t,0:total_UE,:])
                 
             # calculate UE connect which RU
             user_RU_norm = np.zeros(total_UE, dtype=int)
@@ -283,16 +303,23 @@ for rho in range(num_RU):
             e_o = e_op[RU_UE_norm[rho], :]
             util_op_list = np.any(e_o, axis=0)
             util_op[t] = float(np.sum(util_op_list) / float(num_RB))
+            
+            # PSO
+            e_ps = e_pso[RU_UE_norm[rho], :]
+            util_pso_list = np.any(e_ps, axis=0)
+            util_pso[t] = float(np.sum(util_pso_list) / float(num_RB))
 
         idx = a
         util_ru_op[idx] = np.mean(util_op)
         util_ru_random[idx] = np.mean(np.array(util_random))
         util_ru_avg[idx] = np.mean(np.array(util_avg))
+        util_ru_pso[idx] = np.mean(np.array(util_pso))
 
     ax = axes[rho]
-    ax.plot(util_ru_random, linewidth=1.5, color='#3480b8', label='Static Allocation', marker='D', markersize=6)
-    ax.plot(util_ru_avg, linewidth=1.5, color='#8fbc8f', label='Average Allocation', marker='D', markersize=6)
-    ax.plot(util_ru_op, linewidth=1.5, color='#c82423', label='MPC-based Allocation', marker='D', markersize=6)
+    ax.plot(util_ru_random, linewidth=1.5, color='#3480b8', label='Static Allocation', marker='D', markersize=4)
+    ax.plot(util_ru_avg, linewidth=1.5, color='#8fbc8f', label='Average Allocation', marker='D', markersize=4)
+    ax.plot(util_ru_pso, linewidth=1.5, color='gray', label='pso', marker='D', markersize=4)
+    ax.plot(util_ru_op, linewidth=1.5, color='#c82423', label='MPC-based Allocation', marker='D', markersize=4)
 
     ax.set_ylim(0, 1)
     
