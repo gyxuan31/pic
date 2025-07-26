@@ -15,10 +15,12 @@ T = 55
 
 gamma = 3
 num_setreq = 3
-B = 2880*1e3 # 12*300 kHz
+B = 2880*1e3 # 12*240
 fc = 1 * 1e9 # 2 GHz
 P = 0.2 # W
-sigmsqr = 4*1e-12 
+sigmsqr = 10**((-174-30)/10) * B
+print(sigmsqr)
+print(10**(-174/10) /1000 * B)
 eta = 2
 
 multi_num_UE = [2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -163,7 +165,7 @@ loss = (4*np.pi*fc/(3*1e8))**(-2)
 multi_distance_true = multi_distance_true
 multi_prediction = multi_prediction
 
-savemat('multi_UE_sup1.mat', {
+savemat('multi_UE_sup2.mat', {
     'T': T,
     'num_RU': num_RU,
     'multi_num_UE': multi_num_UE,
