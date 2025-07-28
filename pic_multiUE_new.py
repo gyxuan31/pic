@@ -13,14 +13,16 @@ num_RB = int(params['num_RB'].squeeze())
 num_ref = int(params['num_ref'].squeeze())
 gamma = params['gamma'].squeeze()
 num_setreq = int(params['num_setreq'].squeeze())
-B = float(params['B'].squeeze())
+B = 2880*1e3
 P = params['P'].squeeze()
-sigmsqr = params['sigmsqr'].squeeze()
+sigmsqr = 10**((-174-30)/10) * B
 eta = float(params['eta'].squeeze())
 predicted_len = int(params['predicted_len'].squeeze())
 rayleigh_gain = params['rayleigh_gain']
 multi_num_UE = params['multi_num_UE'].squeeze()
 distance_sup = params['multi_distance_true'].squeeze()
+fc = 1 * 1e9 # 2 GHz
+loss = (4*np.pi*fc/(3*1e8))**(-2)
 
 num_point = 9 #len(multi_num_UE) # number of UE group
 
@@ -113,6 +115,7 @@ for a in range(num_point): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
     # dr_op[idx] = multi_rec_dr_op_sup[a] / total_UE
     # dr_avg[idx] = multi_rec_dr_avg_sup[a] / total_UE
     # dr_random[idx] = multi_rec_dr_random_sup[a] / total_UE
+    
     dr_op[idx] = (np.e ** multi_rec_dr_op_sup[a])**(1/total_UE)
     dr_avg[idx] = (np.e ** multi_rec_dr_avg_sup[a])**(1/total_UE)
     dr_random[idx] = (np.e ** multi_rec_dr_random_sup[a])**(1/total_UE)
@@ -131,7 +134,7 @@ plt.plot(dr_random, label='Random', marker='D', markersize=5, color='#3480b8')
 plt.plot(dr_avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
 plt.plot(dr_op, label='MPC-GA', marker='D', markersize=5, color='#c82423')
 plt.plot(dr_pso, label='MPC-PSO', marker='D', markersize=5, color='gray')
-plt.plot(dr_fmincon, label='MPC-fmincon', marker='D', markersize=5, color='#FFC000', linestyle='--') # #ED7D31
+# plt.plot(dr_fmincon, label='MPC-fmincon', marker='D', markersize=5, color='#FFC000', linestyle='--') # #ED7D31
 plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#FF99CC')
 
 plt.xlabel('UE number')
@@ -180,6 +183,12 @@ for rho in range(num_RU):
     util_ru_pso = np.zeros(len(multi_num_UE))
     util_ru_fmincon = np.zeros(len(multi_num_UE))
     util_ru_hun = np.zeros(len(multi_num_UE))
+    
+    ru_op = np.zeros(len(multi_num_UE))
+    ru_random = np.zeros(len(multi_num_UE))
+    ru_avg = np.zeros(len(multi_num_UE))
+    ru_pso = np.zeros(len(multi_num_UE))
+    ru_hun = np.zeros(len(multi_num_UE))
         
     for a in range(num_point): # len(multi_num_UE)
         total_UE = int(multi_num_UE[a] * num_RU)
@@ -200,7 +209,6 @@ for rho in range(num_RU):
             e_fmincon =  np.array(multi_rec_e_fmincon_sup[a,t,0:total_UE,:])
             e_hun = np.array(multi_rec_e_hun_sup[a,t,0:total_UE,:])
             
-                
             # calculate UE connect which RU
             user_RU_norm = np.zeros(total_UE, dtype=int)
             for i in range(total_UE):
@@ -213,7 +221,7 @@ for rho in range(num_RU):
             for r in range(num_RU):
                 idx = np.where(user_RU_norm == r)[0]
                 RU_UE_norm.append(idx)
-
+            
             # RANDOM
             e_ran = e_random[RU_UE_norm[rho], :]
             util_random_list = np.any(e_ran, axis=0)
@@ -244,13 +252,122 @@ for rho in range(num_RU):
             util_hun_list = np.any(e_h, axis=0)
             util_hun[t] = float(np.sum(util_hun_list) / float(num_RB))
             
+            '''
+            # Calculate data rate for every RU
+            UE_num = len(RU_UE_norm[rho])
+            
+            data_rate_op = np.zeros((T_ref, UE_num))
+            data_rate_random = np.zeros((T_ref, UE_num))
+            data_rate_avg = np.zeros((T_ref, UE_num))
+            data_rate_hun = np.zeros((T_ref, UE_num))
+            data_rate_pso = np.zeros((T_ref, UE_num))
+            for n in range(UE_num):
+                for k in range(num_RB):
+                    if e_o[n, k] >= 0.5:
+                        signal = (
+                            P * dist[t + num_ref, n, user_RU_norm[n]] *
+                            rayleigh_gain[n, k] * loss
+                        )
+                        interference = 0.0
+                        for others in range(total_UE):
+                            if others != n and e_op[others, k] >= 0.5 and user_RU_norm[others] != user_RU_norm[n]:
+                                for i in range(num_RU):
+                                    interference += (
+                                        P * dist[t + num_ref, n, user_RU_norm[i]] *
+                                        rayleigh_gain[n, k] * loss
+                                    )
 
+                        SINR = signal / (interference + sigmsqr)
+                        data_rate_op[t,n] += B * np.log(1 + SINR)
+                    if e_ran[n, k] == 1:
+                        signal = (
+                            P * dist[t + num_ref, n, user_RU_norm[n]] *
+                            rayleigh_gain[n, k] * loss
+                        )
+                        interference = 0.0
+                        for others in range(total_UE):
+                            if others != n and e_random[others, k] == 1 and user_RU_norm[others] != user_RU_norm[n]:
+                                for i in range(num_RU):
+                                    interference += (
+                                        P * dist[t + num_ref, n, user_RU_norm[i]] *
+                                        rayleigh_gain[n, k] * loss
+                                    )
+                        SINR = signal / (interference + sigmsqr)
+                        data_rate_random[t,n] += B * np.log(1 + SINR)
+                    if e_avg[n, k] == 1:
+                        signal = (
+                            P * dist[t + num_ref, n, user_RU_norm[n]] *
+                            rayleigh_gain[n, k] * loss
+                        )
+                        interference = 0.0
+                        for others in range(total_UE):
+                            if others != n and e_avg[others, k] == 1 and user_RU_norm[others] != user_RU_norm[n]:
+                                for i in range(num_RU):
+                                    interference += (
+                                        P * dist[t + num_ref, n, user_RU_norm[i]] *
+                                        rayleigh_gain[n, k] * loss
+                                    )
+                        SINR = signal / (interference + sigmsqr)
+                        data_rate_avg[t,n] += B * np.log(1 + SINR)
+                    if e_p[n, k] == 1:
+                        signal = (
+                            P * dist[t + num_ref, n, user_RU_norm[n]] *
+                            rayleigh_gain[n, k] * loss
+                        )
+                        interference = 0.0
+                        for others in range(total_UE):
+                            if others != n and e_avg[others, k] == 1 and user_RU_norm[others] != user_RU_norm[n]:
+                                for i in range(num_RU):
+                                    interference += (
+                                        P * dist[t + num_ref, n, user_RU_norm[i]] *
+                                        rayleigh_gain[n, k] * loss
+                                    )
+                        SINR = signal / (interference + sigmsqr)
+                        data_rate_avg[t,n] += B * np.log(1 + SINR)
+                        
+                    if e_h[n, k] == 1:
+                        signal = (
+                            P * dist[t + num_ref, n, user_RU_norm[n]] *
+                            rayleigh_gain[n, k] * loss
+                        )
+                        interference = 0.0
+                        for others in range(total_UE):
+                            if others != n and e_avg[others, k] == 1 and user_RU_norm[others] != user_RU_norm[n]:
+                                for i in range(num_RU):
+                                    interference += (
+                                        P * dist[t + num_ref, n, user_RU_norm[i]] *
+                                        rayleigh_gain[n, k] * loss
+                                    )
+                        SINR = signal / (interference + sigmsqr)
+                        data_rate_avg[t,n] += B * np.log(1 + SINR)
+
+        ru_op[a] = np.exp(np.mean(np.log(1+np.mean(data_rate_op, axis=0))))
+        ru_avg[a] = np.exp(np.mean(np.log(1+np.mean(data_rate_avg, axis=0))))
+        ru_random[a] = np.exp(np.mean(np.log(1+np.mean(data_rate_random, axis=0))))
+        ru_hun[a] = np.exp(np.mean(np.log(1+np.mean(data_rate_hun, axis=0))))
+        ru_pso[a] = np.exp(np.mean(np.log(1+np.mean(data_rate_pso, axis=0))))
+        
+        # ru_op[a] = np.prod(np.mean(data_rate_op, axis=0)) ** (1 / UE_num)
+        # ru_avg[a] = np.prod(np.mean(data_rate_avg, axis=0)) ** (1 / UE_num)
+        # ru_random[a] = np.prod(np.mean(data_rate_random, axis=0)) ** (1 / UE_num)
+        # ru_hun[a] = np.prod(np.mean(data_rate_hun, axis=0)) ** (1 / UE_num)
+        # ru_pso[a] =np.prod(np.mean(data_rate_pso, axis=0)) ** (1 / UE_num)
+            
+
+        idx = a
+        util_ru_op[idx] = ru_op[a] / np.mean(util_op)
+        util_ru_random[idx] = ru_random[a] / np.mean(np.array(util_random))
+        util_ru_avg[idx] = ru_avg[a] / np.mean(np.array(util_avg))
+        util_ru_pso[idx] = ru_pso[a] / np.mean(np.array(util_pso))
+        # util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
+        util_ru_hun[idx] = ru_hun[a] / np.mean(np.array(util_hun))
+        '''
         idx = a
         util_ru_op[idx] = np.mean(util_op)
         util_ru_random[idx] = np.mean(np.array(util_random))
         util_ru_avg[idx] = np.mean(np.array(util_avg))
         util_ru_pso[idx] = np.mean(np.array(util_pso))
-        util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
+        # util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
         util_ru_hun[idx] = np.mean(np.array(util_hun))
 
     ax = axes[rho]
@@ -258,10 +375,10 @@ for rho in range(num_RU):
     ax.plot(util_ru_avg, linewidth=1.5, color='#8fbc8f', label='Average Allocation', marker='D', markersize=5)
     ax.plot(util_ru_op, linewidth=1.5, color='#c82423', label='MPC-GA Allocation', marker='D', markersize=5)
     ax.plot(util_ru_pso, linewidth=1.5, color='gray', label='MPC-PSO', marker='D', markersize=5)
-    ax.plot(util_ru_fmincon, linewidth=1.5, color='#FFC000', label='MPC-fmincon', marker='D', markersize=5)
+    # ax.plot(util_ru_fmincon, linewidth=1.5, color='#FFC000', label='MPC-fmincon', marker='D', markersize=5)
     ax.plot(util_ru_hun, linewidth=1.5, color='#FF99CC', label='MPC-HUN', marker='D', markersize=5)
 
-    ax.set_ylim(0, 1)
+    # ax.set_ylim(0, 1)
     ax.set_xlabel('UE number')
     ax.set_ylabel(f'RB Utilization of RU {rho+1} (%)')
     ax.grid(True)
