@@ -6,7 +6,7 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_distance1.mat') # 1 5；2000 6
+params = loadmat('multi_distance2.mat') # 1 5；2000 6
 T = int(params['T'].squeeze())
 
 num_RU = int(params['num_RU'].squeeze())
@@ -28,27 +28,28 @@ T_ref = T-num_ref
 T_ref = 20
 # load output
 
-output1 = loadmat('multiDis_output7.mat')
+output1 = loadmat('multiDis_output8.mat')
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_pso_sup = output1['multi_rec_dr_pso'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
-multi_rec_dr_fmincon_sup = output1['multi_rec_dr_fmincon'].squeeze()
+multi_rec_dr_fmincon_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_hun_sup = output1['multi_rec_dr_hun'].squeeze()
+
 
 multi_rec_e_random_sup = output1['multi_rec_e_random'].squeeze()
 multi_rec_e_pso_sup = output1['multi_rec_e_pso'].squeeze()
 multi_rec_e_avg_sup = output1['multi_rec_e_avg'].squeeze()
 multi_rec_e_op_sup = output1['multi_rec_e_op'].squeeze()
-multi_rec_e_fmincon_sup = output1['multi_rec_e_fmincon'].squeeze()
+multi_rec_e_fmincon_sup = output1['multi_rec_e_random'].squeeze()
 multi_rec_e_hun_sup = output1['multi_rec_e_hun'].squeeze()
 
-multi_mean_avg = output1['multi_mean_avg'].squeeze()
-multi_mean_op = output1['multi_mean_op'].squeeze()
-multi_mean_random = output1['multi_mean_random'].squeeze()
-multi_mean_pso = output1['multi_mean_pso'].squeeze()
-multi_mean_fmincon = output1['multi_mean_fmincon'].squeeze()
-multi_mean_hun = output1['multi_mean_hun'].squeeze()
+# multi_mean_avg = output1['multi_mean_avg'].squeeze()
+# multi_mean_op = output1['multi_mean_op'].squeeze()
+# multi_mean_random = output1['multi_mean_random'].squeeze()
+# multi_mean_pso = output1['multi_mean_pso'].squeeze()
+# multi_mean_fmincon =  output1['multi_mean_avg'].squeeze()
+# multi_mean_hun = output1['multi_mean_hun'].squeeze()
 
 xtick = [1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00]
 # plt.figure()
@@ -139,23 +140,23 @@ for a in range(num_point):
     dr_fmincon[idx] = (np.e ** multi_rec_dr_fmincon_sup[a])**(1/total_UE)
     dr_hun[idx] = (np.e ** multi_rec_dr_hun_sup[a])**(1/total_UE)
 
-# print(dr_op)
-# print(dr_avg)
+print(multi_rec_dr_hun_sup)
 print(multi_rec_dr_op_sup)
+
 # Plot - Geometric Mean of Data Rate
 plt.figure()
 plt.plot(dr_random, label='Random', marker='D', markersize=5, color='#3480b8') 
 plt.plot(dr_avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
 plt.plot(dr_pso, label='PSO', marker='D', markersize=5, color='gray')
 plt.plot(dr_op, label='MPC', marker='D', markersize=5, color='#c82423')
-plt.plot(dr_fmincon, label='MPC-sqp', marker='D', markersize=5, color='#FFC000')
+# plt.plot(dr_fmincon, label='MPC-sqp', marker='D', markersize=5, color='#FFC000')
 plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#FF99CC')
 
 plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
 plt.ylabel('Geometric Mean of Data Rate (Mbps)')
 ax = plt.gca()
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
-plt.xticks([a for a in range(0,num_point,2)], xtick)
+# plt.xticks([a for a in range(0,num_point,2)], xtick)
 plt.legend(loc='upper right')
 plt.grid()
 
@@ -165,7 +166,7 @@ op=[]
 pso=[]
 fmincon = []
 hun = []
-for i in range(11):
+for i in range(9):
     random.append(dr_random[i*2])
     avg.append(dr_avg[i*2])
     op.append(dr_op[i*2])

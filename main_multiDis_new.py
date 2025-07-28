@@ -12,14 +12,14 @@ num_RU = 3
 num_RB = 25 # num RB/RU
 UERU = 2 # num of UE under every RU
 total_UE = UERU * num_RU
-T = 2000
+T = 500
 
 gamma = 3
 num_setreq = 3
-B = 2800*1e3 # 12*240 kHz
+B = 2880*1e3 # 12*240
 fc = 1 * 1e9 # 2 GHz
 P = 0.2 # W
-sigmsqr = 4*1e-12 
+sigmsqr = 10**((-174-30)/10) * B
 eta = 2
 
 # Rayleigh fading
@@ -30,7 +30,8 @@ H = (X + 1j * Y) / np.sqrt(2)   # H.shape = (total_UE, num_RB)
 rayleigh_gain = np.ones((total_UE, num_RB))
 loss = (4*np.pi*fc/(3*1e8))**(-2)
 
-multi_distance = [1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950, 2000] # UERU, under one RU
+multi_distance = [300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]
+# multi_distance = [1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950, 2000] # UERU, under one RU
 num_point = len(multi_distance)
 # distance_true.shape(T, total_UE, num_RU)
 # prediction.shape(T-num_ref, predicted_len, total_UE, num_RU)
@@ -38,8 +39,8 @@ multi_distance_true = np.zeros((len(multi_distance), T, total_UE, num_RU),dtype=
 multi_prediction = np.zeros((len(multi_distance), T-num_ref, total_UE, num_RU),dtype=float) # shape(len(multi_num_UE), T, predicted_len, multi_num_UE[i], num_RU)
 
 # Location
-locrux = [-1.732*1500, 0, 1.732*1500]
-locruy = [-1*1500, 2*1500, -1*1500]
+locrux = [-1.732*1000, 0, 1.732*1000]
+locruy = [-1*1000, 2*1000, -1*1000]
 locux = np.random.randn(total_UE) * 50 - 25 # * multi_distance[a] - multi_distance[a]/2
 locuy = np.random.randn(total_UE) * 50 - 25 # * multi_distance[a] - multi_distance[a]/2
 # plt.scatter(locux,locuy, s=30)
@@ -129,7 +130,7 @@ for a in range(len(multi_distance)):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     loss_fn = nn.MSELoss()
 
-    for epoch in range(300):
+    for epoch in range(500):
         model.train()
         output = model(X_train)
         loss = loss_fn(output, Y_train)
@@ -166,7 +167,7 @@ for a in range(len(multi_distance)):
 
 
 
-savemat('multi_distance2000.mat', {
+savemat('multi_distance2.mat', {
     'T': T,
     'num_RU': num_RU,
     'total_UE': total_UE,

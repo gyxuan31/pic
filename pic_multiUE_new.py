@@ -121,7 +121,7 @@ for a in range(num_point): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
     dr_hun[idx] = (np.e ** multi_rec_dr_hun_sup[a])**(1/total_UE)
     print(dr_random[idx])
 
-# print(dr_op)
+print(dr_op)
 # print(dr_avg)
 print(dr_hun)
 
