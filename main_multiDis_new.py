@@ -160,14 +160,15 @@ for a in range(len(multi_distance)):
             prediction.append(pred)
         for u in range(total_UE):
             for i in range(num_RU):
-                multi_prediction[a,t,u,i] = 0.85*prediction[t][0][u][i]+0.1*prediction[t][1][u][i]+0.05*prediction[t][2][u][i] 
+                # multi_prediction[a,t,u,i] = 0.85*prediction[t][0][u][i]+0.1*prediction[t][1][u][i]+0.05*prediction[t][2][u][i] 
                                                         # shape(len(multi_num_UE), T, predicted_len, multi_num_UE[i], num_RU)
+                multi_prediction[a,t,u,i] = 2000
     multi_distance_true[a,:,:total_UE,:] = distance_true # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)
 
 
 
 
-savemat('multi_distance2.mat', {
+savemat('multi_distance_nolstm.mat', {
     'T': T,
     'num_RU': num_RU,
     'total_UE': total_UE,

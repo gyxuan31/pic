@@ -6,7 +6,7 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_UE_sup1.mat')
+params = loadmat('multi_UE_sup3_nolstm.mat') # multi_UE_sup1
 T = int(params['T'].squeeze())
 num_RU = int(params['num_RU'].squeeze())
 num_RB = int(params['num_RB'].squeeze())
@@ -31,20 +31,23 @@ T_ref = T-num_ref
 
 # load output
 
-output1 = loadmat('multi_output2.mat')
-multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
-multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
-multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
-multi_rec_dr_pso_sup = output1['multi_rec_dr_pso'].squeeze()
-multi_rec_dr_fmincon_sup = output1['multi_rec_dr_fmincon'].squeeze()
-multi_rec_dr_hun_sup = output1['multi_rec_dr_hun'].squeeze()
+output = loadmat('multi_output2.mat')
+output1 = loadmat('multi_output3.mat')
+# random-op_n, avg-pso_n, fmincon-hun_n
+multi_rec_dr_op = output['multi_rec_dr_op'].squeeze() 
+multi_rec_dr_pso = output1['multi_rec_dr_pso'].squeeze()
+multi_rec_dr_hun = output['multi_rec_dr_hun'].squeeze()
 
-multi_rec_e_random_sup = output1['multi_rec_e_random'].squeeze()
-multi_rec_e_avg_sup = output1['multi_rec_e_avg'].squeeze()
-multi_rec_e_op_sup = output1['multi_rec_e_op'].squeeze()
-multi_rec_e_pso_sup = output1['multi_rec_e_pso'].squeeze()
-multi_rec_e_fmincon_sup = output1['multi_rec_e_fmincon'].squeeze()
-multi_rec_e_hun_sup = output1['multi_rec_e_hun'].squeeze()
+multi_rec_dr_op_n = output1['multi_rec_dr_op'].squeeze() # no lstm
+multi_rec_dr_pso_n = output['multi_rec_dr_pso'].squeeze()
+multi_rec_dr_hun_n = output1['multi_rec_dr_hun'].squeeze()
+
+multi_rec_e_random_sup = output['multi_rec_e_random'].squeeze()
+multi_rec_e_avg_sup = output['multi_rec_e_avg'].squeeze()
+multi_rec_e_op_sup = output['multi_rec_e_op'].squeeze()
+multi_rec_e_pso_sup = output['multi_rec_e_avg'].squeeze()
+multi_rec_e_fmincon_sup = output['multi_rec_e_avg'].squeeze()
+multi_rec_e_hun_sup = output['multi_rec_e_hun'].squeeze()
 
 util_op_mean = np.zeros(num_point)
 util_random_mean = np.zeros(num_point)
@@ -53,12 +56,12 @@ util_pso_mean = np.zeros(num_point)
 util_fmincon_mean = np.zeros(num_point)
 util_hun_mean = np.zeros(num_point)
 
-dr_random = np.zeros(num_point)
-dr_avg = np.zeros(num_point)
 dr_op = np.zeros(num_point)
 dr_pso = np.zeros(num_point)
-dr_fmincon = np.zeros(num_point)
+dr_op_n = np.zeros(num_point)
+dr_pso_n = np.zeros(num_point)
 dr_hun = np.zeros(num_point)
+dr_hun_n = np.zeros(num_point)
 
 for a in range(num_point): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
     total_UE = multi_num_UE[a] * num_RU
@@ -116,27 +119,32 @@ for a in range(num_point): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
     # dr_avg[idx] = multi_rec_dr_avg_sup[a] / total_UE
     # dr_random[idx] = multi_rec_dr_random_sup[a] / total_UE
     
-    dr_op[idx] = (np.e ** multi_rec_dr_op_sup[a])**(1/total_UE)
-    dr_avg[idx] = (np.e ** multi_rec_dr_avg_sup[a])**(1/total_UE)
-    dr_random[idx] = (np.e ** multi_rec_dr_random_sup[a])**(1/total_UE)
-    dr_pso[idx] = (np.e ** multi_rec_dr_pso_sup[a])**(1/total_UE)
-    dr_fmincon[idx] = (np.e ** multi_rec_dr_fmincon_sup[a])**(1/total_UE)
-    dr_hun[idx] = (np.e ** multi_rec_dr_hun_sup[a])**(1/total_UE)
-    print(dr_random[idx])
+    dr_op_n[idx] = (np.e ** multi_rec_dr_op_n[a])**(1/total_UE)
+    dr_pso[idx] = (np.e ** multi_rec_dr_pso[a])**(1/total_UE)
+    dr_op[idx] = (np.e ** multi_rec_dr_op[a])**(1/total_UE)
+    dr_pso_n[idx] = (np.e ** multi_rec_dr_pso_n[a])**(1/total_UE)
+    dr_hun[idx] = (np.e ** multi_rec_dr_hun[a])**(1/total_UE)
+    dr_hun_n[idx] = (np.e ** multi_rec_dr_hun_n[a])**(1/total_UE)
+    print(dr_op[idx])
 
-print(multi_rec_dr_op_sup)
-print(multi_rec_dr_hun_sup)
+print(multi_rec_dr_op_n)
+print(multi_rec_dr_hun_n)
 # print(dr_avg)
-print(dr_hun)
+print(dr_hun_n)
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
-plt.plot(dr_random, label='Random', marker='D', markersize=5, color='#3480b8')
-plt.plot(dr_avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
-plt.plot(dr_op, label='MPC-GA', marker='D', markersize=5, color='#c82423')
+plt.plot(dr_pso_n, label='PSO-N', marker='D', markersize=5, color='gray', linestyle='--')
 plt.plot(dr_pso, label='MPC-PSO', marker='D', markersize=5, color='gray')
-# plt.plot(dr_fmincon, label='MPC-fmincon', marker='D', markersize=5, color='#FFC000', linestyle='--') # #ED7D31
-plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#FFC000')
+
+plt.plot(dr_hun_n, label='HUN-N', marker='D', markersize=5, color='#FFC000', linestyle='--')
+plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#FFC000') # #ED7D31
+
+plt.plot(dr_op_n, label='GA-N', marker='D', markersize=5, color='#c82423', linestyle='--')
+plt.plot(dr_op, label='MPC-GA', marker='D', markersize=5, color='#c82423')
+
+
+
 
 plt.xlabel('UE number')
 plt.ylabel('Geometric Mean of Data Rate (Mbps)')

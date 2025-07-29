@@ -25,7 +25,7 @@ num_point = params['num_point'].squeeze()
 loss = (4*np.pi*1e9/(3*1e8))**(-eta)
 
 T_ref = T-num_ref
-T_ref = 20
+# T_ref = 20
 # load output
 
 output1 = loadmat('multiDis_output8.mat')
@@ -51,7 +51,9 @@ multi_rec_e_hun_sup = output1['multi_rec_e_hun'].squeeze()
 # multi_mean_fmincon =  output1['multi_mean_avg'].squeeze()
 # multi_mean_hun = output1['multi_mean_hun'].squeeze()
 
-xtick = [1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00]
+# xtick = [1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00]
+xtick = [300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]
+xtick = [300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900]
 # plt.figure()
 # plt.plot(multi_mean_random, label='Random', marker='D', markersize=6, color='#3480b8') 
 # plt.plot(multi_mean_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
@@ -125,7 +127,7 @@ for a in range(num_point):
         util_hun.append(np.sum(util_hun_list) / float(num_RB))
         
     idx = a
-        
+    
     util_op_mean[idx] = np.mean(np.array(util_op))
     util_random_mean[idx] = np.mean(np.array(util_random))
     util_avg_mean[idx] = np.mean(np.array(util_avg))
@@ -140,8 +142,8 @@ for a in range(num_point):
     dr_fmincon[idx] = (np.e ** multi_rec_dr_fmincon_sup[a])**(1/total_UE)
     dr_hun[idx] = (np.e ** multi_rec_dr_hun_sup[a])**(1/total_UE)
 
-print(multi_rec_dr_hun_sup)
 print(multi_rec_dr_op_sup)
+print(multi_rec_dr_hun_sup)
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
@@ -150,13 +152,13 @@ plt.plot(dr_avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
 plt.plot(dr_pso, label='PSO', marker='D', markersize=5, color='gray')
 plt.plot(dr_op, label='MPC', marker='D', markersize=5, color='#c82423')
 # plt.plot(dr_fmincon, label='MPC-sqp', marker='D', markersize=5, color='#FFC000')
-plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#FF99CC')
+plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#FFC000', linestyle='--')
 
 plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
 plt.ylabel('Geometric Mean of Data Rate (Mbps)')
 ax = plt.gca()
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
-# plt.xticks([a for a in range(0,num_point,2)], xtick)
+plt.xticks([a for a in range(0,num_point,2)], xtick)
 plt.legend(loc='upper right')
 plt.grid()
 
@@ -174,19 +176,20 @@ for i in range(9):
     fmincon.append(dr_fmincon[i*2])
     hun.append(dr_hun[i*2])
     
-# plt.figure()
-# plt.plot(random, label='Random', marker='D', markersize=6, color='#3480b8') 
-# plt.plot(avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
-# plt.plot(op, label='MPC', marker='D', markersize=6, color='#c82423')
-# plt.plot(pso, label='MPC-PSO', marker='D', markersize=6, color='gray')
-# plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
-# plt.ylabel('Geometric Mean of Data Rate (Mbps)')
-# ax = plt.gca()
-# ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
-# # tick = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
-# # plt.xticks([a for a in range(6)], tick)
-# plt.legend(loc='upper right')
-# plt.grid()
+plt.figure()
+plt.plot(random, label='Random', marker='D', markersize=5, color='#3480b8') 
+plt.plot(avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
+plt.plot(op, label='MPC', marker='D', markersize=5, color='#c82423')
+plt.plot(pso, label='MPC-PSO', marker='D', markersize=5, color='gray')
+plt.plot(hun, label='MPC-HUN', marker='D', markersize=5, color='#FFC000', linestyle='--')
+plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
+plt.ylabel('Geometric Mean of Data Rate (Mbps)')
+ax = plt.gca()
+ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
+tick = [400, 800, 1200, 1600, 2000]
+plt.xticks([a for a in range(0,9,2)], tick)
+plt.legend() # loc='upper right'
+plt.grid()
 
 fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(8, 6), height_ratios=[4, 1])
 plt.subplots_adjust(hspace=0.1)  # 调整间距
@@ -194,17 +197,17 @@ plt.subplots_adjust(hspace=0.1)  # 调整间距
 # 设置上面子图（显示60–90）
 ax1.plot(op, label='MPC-GA', marker='D', markersize=6, color='#c82423')
 ax1.plot(pso, label='MPC-PSO', marker='D', markersize=6, color='gray')
-ax1.plot(hun, label='MPC-HUN', marker='D', markersize=6, color='#FF99CC')
+ax1.plot(hun, label='MPC-HUN', marker='D', markersize=6, color='#FFC000') # FF99CC
 
-ax1.set_ylim(60*1e6, 80*1e6)
+ax1.set_ylim(60*1e6, 100*1e6)
 ax1.spines['bottom'].set_visible(False)
 ax1.tick_params(labelbottom=False)
 
 # 设置下面子图（显示0–10）
 ax2.plot(random, label='Random', marker='D', markersize=6, color='#3480b8') 
 ax2.plot(avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
-ax2.plot(fmincon, label='MPC-sqp', marker='D', markersize=6, color='#FFC000')
-ax2.set_ylim(0, 6*1e6)
+# ax2.plot(fmincon, label='MPC-sqp', marker='D', markersize=6, color='#FFC000')
+ax2.set_ylim(0, 10*1e6)
 ax2.spines['top'].set_visible(False)
 
 # 设置Y轴格式：单位换成 Mbps
@@ -327,13 +330,13 @@ for rho in range(num_RU):
     ax.plot(util_ru_avg, linewidth=1.5, color='#8fbc8f', label='Average Allocation', marker='D', markersize=4)
     ax.plot(util_ru_pso, linewidth=1.5, color='gray', label='pso', marker='D', markersize=4)
     ax.plot(util_ru_op, linewidth=1.5, color='#c82423', label='MPC-based Allocation', marker='D', markersize=4)
-    ax.plot(util_ru_hun, linewidth=1.5, color='#FF99CC', label='MPC-based Allocation', marker='D', markersize=4)
+    ax.plot(util_ru_hun, linewidth=1.5, color='#FF99CC', label='MPC-HUN Allocation', marker='D', markersize=4)
 
     ax.set_ylim(0, 1)
     
     ax.set_ylabel(f'RB Utilization of RU {rho+1} (%)')
     ax.grid(True)
-    ax.set_xticks([a for a in range(0,num_point,2)])
+    # ax.set_xticks([a for a in range(0,num_point,2)])
     ax.set_xticklabels(xtick)
 axes[1].set_xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
 axes[rho].legend(loc='lower right')
