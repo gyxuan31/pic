@@ -231,7 +231,7 @@ ax1.legend(loc='upper right')
 ax2.legend(loc='upper right')
 ax2.grid()
 ax1.grid()
-
+# plt.legend()
 plt.show()
 
 # Plot - Utilization

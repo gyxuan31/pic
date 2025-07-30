@@ -11,7 +11,7 @@ predicted_len = 3
 num_RU = 3
 num_RB = 25 # num RB/RU
 
-T = 55
+T = 2005
 
 gamma = 3
 num_setreq = 3
@@ -157,8 +157,8 @@ for a in range(len(multi_num_UE)):
             prediction.append(pred)
         for u in range(total_UE):
             for i in range(num_RU):
-                multi_prediction[a,t,u,i] = 2000
-                # multi_prediction[a,t,u,i] = 0.85*prediction[t][0][u][i]+0.1*prediction[t][1][u][i]+0.05*prediction[t][2][u][i] 
+                # multi_prediction[a,t,u,i] = 2000
+                multi_prediction[a,t,u,i] = 0.85*prediction[t][0][u][i]+0.1*prediction[t][1][u][i]+0.05*prediction[t][2][u][i] 
                                                         # shape(len(multi_num_UE), T, predicted_len, multi_num_UE[i], num_RU)
     multi_distance_true[a,:,:total_UE,:] = distance_true # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)
  
@@ -166,7 +166,7 @@ loss = (4*np.pi*fc/(3*1e8))**(-2)
 multi_distance_true = multi_distance_true
 multi_prediction = multi_prediction
 
-savemat('multi_UE_sup3_nolstm.mat', {
+savemat('multi_UE_sup4_2000.mat', {
     'T': T,
     'num_RU': num_RU,
     'multi_num_UE': multi_num_UE,

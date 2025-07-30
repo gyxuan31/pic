@@ -253,7 +253,7 @@ for rho in range(num_RU):
             util_hun_list = np.any(e_h, axis=0)
             util_hun[t] = float(np.sum(util_hun_list) / float(num_RB))
             
-            '''
+            # '''
             # Calculate data rate for every RU
             UE_num = len(RU_UE_norm[rho])
             
@@ -333,14 +333,14 @@ for rho in range(num_RU):
                         )
                         interference = 0.0
                         for others in range(total_UE):
-                            if others != n and e_avg[others, k] == 1 and user_RU_norm[others] != user_RU_norm[n]:
+                            if others != n and e_hun[others, k] == 1 and user_RU_norm[others] != user_RU_norm[n]:
                                 for i in range(num_RU):
                                     interference += (
                                         P * dist[t + num_ref, n, user_RU_norm[i]] *
                                         rayleigh_gain[n, k] * loss
                                     )
                         SINR = signal / (interference + sigmsqr)
-                        data_rate_avg[t,n] += B * np.log(1 + SINR)
+                        data_rate_hun[t,n] += B * np.log(1 + SINR)
 
         ru_op[a] = np.exp(np.mean(np.log(1+np.mean(data_rate_op, axis=0))))
         ru_avg[a] = np.exp(np.mean(np.log(1+np.mean(data_rate_avg, axis=0))))
@@ -362,14 +362,14 @@ for rho in range(num_RU):
         util_ru_pso[idx] = ru_pso[a] / np.mean(np.array(util_pso))
         # util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
         util_ru_hun[idx] = ru_hun[a] / np.mean(np.array(util_hun))
-        '''
-        idx = a
-        util_ru_op[idx] = np.mean(util_op)
-        util_ru_random[idx] = np.mean(np.array(util_random))
-        util_ru_avg[idx] = np.mean(np.array(util_avg))
-        util_ru_pso[idx] = np.mean(np.array(util_pso))
-        # util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
-        util_ru_hun[idx] = np.mean(np.array(util_hun))
+        # '''
+        # idx = a
+        # util_ru_op[idx] = np.mean(util_op)
+        # util_ru_random[idx] = np.mean(np.array(util_random))
+        # util_ru_avg[idx] = np.mean(np.array(util_avg))
+        # util_ru_pso[idx] = np.mean(np.array(util_pso))
+        # # util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
+        # util_ru_hun[idx] = np.mean(np.array(util_hun))
 
     ax = axes[rho]
     ax.plot(util_ru_random, linewidth=1.5, color='#3480b8', label='Static Allocation', marker='D', markersize=5)
