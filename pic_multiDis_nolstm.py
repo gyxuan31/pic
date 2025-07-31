@@ -32,13 +32,13 @@ output = loadmat('multiDis_output8.mat')
 output1 = loadmat('multiDis_output9.mat')
 
 
-multi_rec_dr_pso = output['multi_rec_dr_pso'].squeeze()
+multi_rec_dr_pso = output1['multi_rec_dr_pso'].squeeze()
 multi_rec_dr_op = output['multi_rec_dr_op'].squeeze()
 multi_rec_dr_hun = output['multi_rec_dr_hun'].squeeze()
 
 multi_rec_dr_op_n = output1['multi_rec_dr_op'].squeeze()
 multi_rec_dr_hun_n = output1['multi_rec_dr_hun'].squeeze()
-multi_rec_dr_pso_n = output1['multi_rec_dr_pso'].squeeze()
+multi_rec_dr_pso_n = output['multi_rec_dr_pso'].squeeze()
 
 multi_rec_e_random_sup = output['multi_rec_e_random'].squeeze()
 multi_rec_e_pso_sup = output['multi_rec_e_pso'].squeeze()
@@ -139,12 +139,13 @@ for a in range(num_point):
     util_hun_mean[idx] = np.mean(np.array(util_hun))
 
     dr_op[idx] = (np.e ** multi_rec_dr_op[a])**(1/total_UE)
-    dr_pso_n[idx//2] = (np.e ** multi_rec_dr_pso_n[a])**(1/total_UE)
+    dr_pso_n[idx] = (np.e ** multi_rec_dr_pso_n[a])**(1/total_UE)
     dr_op_n[idx] = (np.e ** multi_rec_dr_op_n[a])**(1/total_UE)
-    dr_pso[idx] = (np.e ** multi_rec_dr_pso[a])**(1/total_UE)
+    dr_pso[idx] = (np.e ** multi_rec_dr_pso[a//2])**(1/total_UE)
     dr_hun_n[idx] = (np.e ** multi_rec_dr_hun_n[a])**(1/total_UE)
     dr_hun[idx] = (np.e ** multi_rec_dr_hun[a])**(1/total_UE)
-
+print(multi_rec_dr_hun)
+print(multi_rec_dr_hun_n)
 print(multi_rec_dr_op)
 print(multi_rec_dr_hun)
 
@@ -165,27 +166,28 @@ print(multi_rec_dr_hun)
 # plt.legend(loc='upper right')
 # plt.grid()
 
-random=[]
-avg=[]
+op_n=[]
+pso_n=[]
 op=[]
 pso=[]
-fmincon = []
+hun_n = []
 hun = []
 for i in range(9):
-    random.append(dr_op_n[i*2])
-    # avg.append(dr_pso_n[i*2])
+    op_n.append(dr_op_n[i*2])
+    pso_n.append(dr_pso_n[i*2])
     op.append(dr_op[i*2])
     pso.append(dr_pso[i*2])
-    fmincon.append(dr_hun_n[i*2])
+    hun_n.append(dr_hun_n[i*2])
     hun.append(dr_hun[i*2])
-    
+print(hun_n)
 plt.figure()
-plt.plot(random, label='Random', marker='D', markersize=5, color='#3480b8') 
-plt.plot(avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
-plt.plot(op, label='MPC', marker='D', markersize=5, color='#c82423')
-plt.plot(pso, label='MPC-PSO', marker='D', markersize=5, color='gray')
-plt.plot(hun, label='MPC-HUN', marker='D', markersize=5, color='#FFC000', linestyle='--')
-plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
+plt.plot(op_n, label='GA-N', marker='D', markersize=5, color='#FFC000', linestyle='--') 
+plt.plot(op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
+plt.plot(pso_n, label='PSO-N', marker='D', markersize=5, color='#3480b8', linestyle='--')
+plt.plot(pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
+plt.plot(hun_n, label='HUN-N', marker='D', markersize=5, color='#c82423', linestyle='--')
+plt.plot(hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423')
+plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (m)')
 plt.ylabel('Geometric Mean of Data Rate (Mbps)')
 ax = plt.gca()
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
@@ -198,17 +200,19 @@ fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(8, 6), height_ratios=
 plt.subplots_adjust(hspace=0.1)  # 调整间距
 
 # 设置上面子图（显示60–90）
-ax1.plot(op, label='MPC-GA', marker='D', markersize=6, color='#c82423')
+
 ax1.plot(pso, label='MPC-PSO', marker='D', markersize=6, color='gray')
 ax1.plot(hun, label='MPC-HUN', marker='D', markersize=6, color='#FFC000') # FF99CC
+ax1.plot(op, label='MPC-GA', marker='D', markersize=6, color='#c82423')
 
 ax1.set_ylim(60*1e6, 100*1e6)
 ax1.spines['bottom'].set_visible(False)
 ax1.tick_params(labelbottom=False)
+ax1.tick_params(axis='both', labelsize=12)
 
 # 设置下面子图（显示0–10）
-ax2.plot(random, label='Random', marker='D', markersize=6, color='#3480b8') 
-ax2.plot(avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
+ax2.plot(op_n, label='Random', marker='D', markersize=6, color='#3480b8') 
+ax2.plot(pso_n, label='Average', marker='D', markersize=6, color='#8fbc8f')
 # ax2.plot(fmincon, label='MPC-sqp', marker='D', markersize=6, color='#FFC000')
 ax2.set_ylim(0, 10*1e6)
 ax2.spines['top'].set_visible(False)

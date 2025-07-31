@@ -134,14 +134,14 @@ print(dr_hun_n)
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
-plt.plot(dr_pso_n, label='PSO-N', marker='D', markersize=5, color='gray', linestyle='--')
-plt.plot(dr_pso, label='MPC-PSO', marker='D', markersize=5, color='gray')
+plt.plot(dr_pso_n, label='PSO-N', marker='D', markersize=5, color='#3480b8', linestyle='--')
+plt.plot(dr_pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
 
-plt.plot(dr_hun_n, label='HUN-N', marker='D', markersize=5, color='#FFC000', linestyle='--')
-plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#FFC000') # #ED7D31
+plt.plot(dr_hun_n, label='HUN-N', marker='D', markersize=5, color='#c82423', linestyle='--')
+plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423') # #ED7D31
 
-plt.plot(dr_op_n, label='GA-N', marker='D', markersize=5, color='#c82423', linestyle='--')
-plt.plot(dr_op, label='MPC-GA', marker='D', markersize=5, color='#c82423')
+plt.plot(dr_op_n, label='GA-N', marker='D', markersize=5, color='#FFC000', linestyle='--')
+plt.plot(dr_op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
 
 
 

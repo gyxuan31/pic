@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler
 from scipy.io import savemat
-np.random.seed(1)
+np.random.seed(2)
 
 num_ref = 5
 predicted_len = 3
@@ -162,13 +162,13 @@ for a in range(len(multi_distance)):
             for i in range(num_RU):
                 # multi_prediction[a,t,u,i] = 0.85*prediction[t][0][u][i]+0.1*prediction[t][1][u][i]+0.05*prediction[t][2][u][i] 
                                                         # shape(len(multi_num_UE), T, predicted_len, multi_num_UE[i], num_RU)
-                multi_prediction[a,t,u,i] = 2000
+                multi_prediction[a,t,u,i] = 1
     multi_distance_true[a,:,:total_UE,:] = distance_true # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)
 
 
 
 
-savemat('multi_distance_nolstm.mat', {
+savemat('multi_distance_nolstm1.mat', {
     'T': T,
     'num_RU': num_RU,
     'total_UE': total_UE,
@@ -224,4 +224,4 @@ for a in range(len(multi_distance)):
 # plt.legend()
 # plt.grid()
 # plt.tight_layout()
-plt.show()
+# plt.show()

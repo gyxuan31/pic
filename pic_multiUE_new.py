@@ -128,22 +128,28 @@ print(multi_rec_dr_op_sup)
 print(multi_rec_dr_hun_sup)
 # print(dr_avg)
 print(dr_hun)
+print(dr_op)
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
-plt.plot(dr_random, label='Random', marker='D', markersize=5, color='#3480b8')
+plt.plot(dr_random, label='Static', marker='D', markersize=5, color='gray')
 plt.plot(dr_avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
-plt.plot(dr_op, label='MPC-GA', marker='D', markersize=5, color='#c82423')
-plt.plot(dr_pso, label='MPC-PSO', marker='D', markersize=5, color='gray')
+plt.plot(dr_op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
+plt.plot(dr_pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
 # plt.plot(dr_fmincon, label='MPC-fmincon', marker='D', markersize=5, color='#FFC000', linestyle='--') # #ED7D31
-plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#FFC000')
+plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423')
 
-plt.xlabel('UE number')
-plt.ylabel('Geometric Mean of Data Rate (Mbps)')
+plt.xlabel('UE number', fontsize=14)
+plt.ylabel('Geometric Mean of Data Rate (Mbps)', fontsize=14)
 xtick = [a*num_RU for a in multi_num_UE[:num_point]]
 plt.xticks([a for a in range(num_point)], xtick)
 ax = plt.gca()
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
+# yticks = plt.yticks()[0]
+# new_yticks = [tick for tick in yticks if tick != 0]
+# plt.ylim([0, 90*1e6])
+# plt.yticks(new_yticks)
+
 # for i, y in enumerate(dr_random):
 #     plt.text(i, y, f'{y*1e-6:.1f}', ha='center', va='bottom')
 # for i, y in enumerate(dr_avg):
@@ -253,7 +259,7 @@ for rho in range(num_RU):
             util_hun_list = np.any(e_h, axis=0)
             util_hun[t] = float(np.sum(util_hun_list) / float(num_RB))
             
-            # '''
+            '''
             # Calculate data rate for every RU
             UE_num = len(RU_UE_norm[rho])
             
@@ -295,7 +301,7 @@ for rho in range(num_RU):
                                     )
                         SINR = signal / (interference + sigmsqr)
                         data_rate_random[t,n] += B * np.log(1 + SINR)
-                    if e_avg[n, k] == 1:
+                    if e_av[n, k] == 1:
                         signal = (
                             P * dist[t + num_ref, n, user_RU_norm[n]] *
                             rayleigh_gain[n, k] * loss
@@ -317,14 +323,14 @@ for rho in range(num_RU):
                         )
                         interference = 0.0
                         for others in range(total_UE):
-                            if others != n and e_avg[others, k] == 1 and user_RU_norm[others] != user_RU_norm[n]:
+                            if others != n and e_pso[others, k] == 1 and user_RU_norm[others] != user_RU_norm[n]:
                                 for i in range(num_RU):
                                     interference += (
                                         P * dist[t + num_ref, n, user_RU_norm[i]] *
                                         rayleigh_gain[n, k] * loss
                                     )
                         SINR = signal / (interference + sigmsqr)
-                        data_rate_avg[t,n] += B * np.log(1 + SINR)
+                        data_rate_pso[t,n] += B * np.log(1 + SINR)
                         
                     if e_h[n, k] == 1:
                         signal = (
@@ -362,30 +368,48 @@ for rho in range(num_RU):
         util_ru_pso[idx] = ru_pso[a] / np.mean(np.array(util_pso))
         # util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
         util_ru_hun[idx] = ru_hun[a] / np.mean(np.array(util_hun))
-        # '''
-        # idx = a
-        # util_ru_op[idx] = np.mean(util_op)
-        # util_ru_random[idx] = np.mean(np.array(util_random))
-        # util_ru_avg[idx] = np.mean(np.array(util_avg))
-        # util_ru_pso[idx] = np.mean(np.array(util_pso))
-        # # util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
-        # util_ru_hun[idx] = np.mean(np.array(util_hun))
+        '''
+        
+        
+        idx = a
+        util_ru_op[idx] = np.mean(util_op)
+        util_ru_random[idx] = np.mean(np.array(util_random))
+        util_ru_avg[idx] = np.mean(np.array(util_avg))
+        util_ru_pso[idx] = np.mean(np.array(util_pso))
+        # util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
+        util_ru_hun[idx] = np.mean(np.array(util_hun))
 
     ax = axes[rho]
-    ax.plot(util_ru_random, linewidth=1.5, color='#3480b8', label='Static Allocation', marker='D', markersize=5)
-    ax.plot(util_ru_avg, linewidth=1.5, color='#8fbc8f', label='Average Allocation', marker='D', markersize=5)
-    ax.plot(util_ru_op, linewidth=1.5, color='#c82423', label='MPC-GA Allocation', marker='D', markersize=5)
-    ax.plot(util_ru_pso, linewidth=1.5, color='gray', label='MPC-PSO', marker='D', markersize=5)
+    
+    # plot
+    ax.plot(util_ru_random, linewidth=1.5, color='gray', label='Static', marker='D', markersize=5)
+    ax.plot(util_ru_avg, linewidth=1.5, color='#8fbc8f', label='Average', marker='D', markersize=5)
+    ax.plot(util_ru_op, linewidth=1.5, color='#FFC000', label='MPC-GA', marker='D', markersize=5)
+    ax.plot(util_ru_pso, linewidth=1.5, color='#3480b8', label='MPC-PSO', marker='D', markersize=5)
     # ax.plot(util_ru_fmincon, linewidth=1.5, color='#FFC000', label='MPC-fmincon', marker='D', markersize=5)
-    ax.plot(util_ru_hun, linewidth=1.5, color='#FF99CC', label='MPC-HUN', marker='D', markersize=5)
+    ax.plot(util_ru_hun, linewidth=1.5, color='#c82423', label='MPC-HUN', marker='D', markersize=5)
+    ax.set_ylim(0, 1)
+    ax.set_ylabel(f'RB utilization of RU {rho+1} (%)', fontsize=14)
+    print(np.mean(util_ru_hun))
+    
+    # # bar
+    # bar_width = 0.15
+    # x = np.arange(num_point)
+    # ax.bar(x - 2*bar_width,  util_ru_hun,    width=bar_width, color='#c82423', label='MPC-HUN')
+    # ax.bar(x - bar_width,                util_ru_op,     width=bar_width, color='#FFC000', label='MPC-GA')
+    # ax.bar(x,    util_ru_pso,    width=bar_width, color='#3480b8',    label='MPC-PSO')
+    # ax.bar(x + bar_width, util_ru_random, width=bar_width, color='gray', label='Static')
+    # ax.bar(x + 2*bar_width,    util_ru_avg,    width=bar_width, color='#8fbc8f', label='Average')
+    # # ax.bar(x + 2*bar_width,  util_ru_fmincon, width=bar_width, color='#FFC000', label='MPC-fmincon')
+    # ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
+    # ax.set_ylabel(f'RB efficiency of RU {rho+1}')
 
-    # ax.set_ylim(0, 1)
-    ax.set_xlabel('UE number')
-    ax.set_ylabel(f'RB Utilization of RU {rho+1} (%)')
+
+    ax.set_xlabel('UE number', fontsize=14)
     ax.grid(True)
     ax.set_xticks([a for a in range(num_point)])
     ax.set_xticklabels(xtick)
     
-axes[rho].legend(loc='lower right')
+axes[rho].legend(loc='upper right')
 
 plt.show()

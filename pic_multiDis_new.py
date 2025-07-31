@@ -147,15 +147,15 @@ print(multi_rec_dr_hun_sup)
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
-plt.plot(dr_random, label='Random', marker='D', markersize=5, color='#3480b8') 
+plt.plot(dr_random, label='Static', marker='D', markersize=5, color='gray') 
 plt.plot(dr_avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
-plt.plot(dr_pso, label='PSO', marker='D', markersize=5, color='gray')
-plt.plot(dr_op, label='MPC', marker='D', markersize=5, color='#c82423')
+plt.plot(dr_pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
+plt.plot(dr_op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
 # plt.plot(dr_fmincon, label='MPC-sqp', marker='D', markersize=5, color='#FFC000')
-plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#FFC000', linestyle='--')
+plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423', linestyle='--')
 
-plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
-plt.ylabel('Geometric Mean of Data Rate (Mbps)')
+plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)', fontsize=14)
+plt.ylabel('Geometric Mean of Data Rate (Mbps)', fontsize=14)
 ax = plt.gca()
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
 plt.xticks([a for a in range(0,num_point,2)], xtick)
@@ -177,11 +177,11 @@ for i in range(9):
     hun.append(dr_hun[i*2])
     
 plt.figure()
-plt.plot(random, label='Random', marker='D', markersize=5, color='#3480b8') 
+plt.plot(random, label='Static', marker='D', markersize=5, color='gray') 
 plt.plot(avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
-plt.plot(op, label='MPC', marker='D', markersize=5, color='#c82423')
-plt.plot(pso, label='MPC-PSO', marker='D', markersize=5, color='gray')
-plt.plot(hun, label='MPC-HUN', marker='D', markersize=5, color='#FFC000', linestyle='--')
+plt.plot(op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
+plt.plot(pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
+plt.plot(hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423')
 plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
 plt.ylabel('Geometric Mean of Data Rate (Mbps)')
 ax = plt.gca()
@@ -195,17 +195,19 @@ fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(8, 6), height_ratios=
 plt.subplots_adjust(hspace=0.1)  # 调整间距
 
 # 设置上面子图（显示60–90）
-ax1.plot(op, label='MPC-GA', marker='D', markersize=6, color='#c82423')
-ax1.plot(pso, label='MPC-PSO', marker='D', markersize=6, color='gray')
-ax1.plot(hun, label='MPC-HUN', marker='D', markersize=6, color='#FFC000') # FF99CC
+ax1.plot(hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423') # FF99CC
+ax1.plot(op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
+ax1.plot(pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
+
 
 ax1.set_ylim(60*1e6, 100*1e6)
 ax1.spines['bottom'].set_visible(False)
 ax1.tick_params(labelbottom=False)
-
+tick = [400, 800, 1200, 1600, 2000]
+ax2.set_xticks([a for a in range(0,9,2)], tick)
 # 设置下面子图（显示0–10）
-ax2.plot(random, label='Random', marker='D', markersize=6, color='#3480b8') 
-ax2.plot(avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
+ax2.plot(random, label='Static', marker='D', markersize=5, color='gray') 
+ax2.plot(avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
 # ax2.plot(fmincon, label='MPC-sqp', marker='D', markersize=6, color='#FFC000')
 ax2.set_ylim(0, 10*1e6)
 ax2.spines['top'].set_visible(False)
@@ -213,6 +215,8 @@ ax2.spines['top'].set_visible(False)
 # 设置Y轴格式：单位换成 Mbps
 ax1.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
 ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
+ax1.tick_params(axis='both', labelsize=12)
+ax2.tick_params(axis='both', labelsize=12)
 
 # 添加"断轴"小斜线
 d = .015
@@ -223,10 +227,11 @@ kwargs.update(transform=ax2.transAxes)
 ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)
 ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
 
+
 # 添加标签与图例
-ax2.set_xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
-ax1.set_ylabel('Data Rate (Mbps)')
-ax2.set_ylabel('Data Rate (Mbps)')
+ax2.set_xlabel('Standard Deviation of the Distance from UE to Serving RU (m)', fontsize=14)
+ax1.set_ylabel('Data Rate (Mbps)', fontsize=14)
+ax2.set_ylabel('Data Rate (Mbps)', fontsize=14)
 ax1.legend(loc='upper right')
 ax2.legend(loc='upper right')
 ax2.grid()
