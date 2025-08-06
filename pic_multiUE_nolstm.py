@@ -6,8 +6,8 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_UE_sup3_nolstm.mat') # multi_UE_sup1
-T = int(params['T'].squeeze())
+params = loadmat('multi_UE_tr.mat') # multi_UE_sup1
+T = 200# int(params['T'].squeeze())
 num_RU = int(params['num_RU'].squeeze())
 num_RB = int(params['num_RB'].squeeze())
 num_ref = int(params['num_ref'].squeeze())
@@ -31,15 +31,15 @@ T_ref = T-num_ref
 
 # load output
 
-output = loadmat('multi_output2.mat')
-output1 = loadmat('multi_output3.mat')
+output1 = loadmat('UE1.mat')
+output = loadmat('UE1_nolstm.mat')
 # random-op_n, avg-pso_n, fmincon-hun_n
 multi_rec_dr_op = output['multi_rec_dr_op'].squeeze() 
-multi_rec_dr_pso = output1['multi_rec_dr_pso'].squeeze()
+multi_rec_dr_pso = output['multi_rec_dr_pso'].squeeze()
 multi_rec_dr_hun = output['multi_rec_dr_hun'].squeeze()
 
 multi_rec_dr_op_n = output1['multi_rec_dr_op'].squeeze() # no lstm
-multi_rec_dr_pso_n = output['multi_rec_dr_pso'].squeeze()
+multi_rec_dr_pso_n = output1['multi_rec_dr_pso'].squeeze()
 multi_rec_dr_hun_n = output1['multi_rec_dr_hun'].squeeze()
 
 multi_rec_e_random_sup = output['multi_rec_e_random'].squeeze()
@@ -160,6 +160,7 @@ ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'
 #     plt.text(i, y, f'{y*1e-6:.1f}', ha='center', va='bottom')
 plt.legend()
 plt.grid()
+plt.show()
 
 '''
 # Plot - Utilization
@@ -201,7 +202,7 @@ for rho in range(num_RU):
         
     for a in range(num_point): # len(multi_num_UE)
         total_UE = int(multi_num_UE[a] * num_RU)
-        dist = distance_sup[a,:,:total_UE,:].reshape((T, total_UE, num_RU))
+        dist = distance_sup[a,:T,:total_UE,:].reshape((T, total_UE, num_RU))
 
         util_op = np.zeros(T_ref)
         util_random = np.zeros(T_ref)

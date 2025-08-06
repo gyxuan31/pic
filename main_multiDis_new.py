@@ -30,7 +30,7 @@ H = (X + 1j * Y) / np.sqrt(2)   # H.shape = (total_UE, num_RB)
 rayleigh_gain = np.ones((total_UE, num_RB))
 loss = (4*np.pi*fc/(3*1e8))**(-2)
 
-multi_distance = [300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]
+multi_distance = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
 # multi_distance = [1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950, 2000] # UERU, under one RU
 num_point = len(multi_distance)
 # distance_true.shape(T, total_UE, num_RU)
@@ -55,12 +55,17 @@ for a in range(len(multi_distance)):
     trajectory_y = np.zeros((T, total_UE))
 
     # Trajectory
-    trajectory_x[0] = locux
-    trajectory_y[0] = locuy
-    for t in range(T):
+    trajectory_x[0] = np.random.normal(loc=0, scale=multi_distance[a])
+    trajectory_y[0] = np.random.normal(loc=0, scale=multi_distance[a])
+    for t in range(1,T):
         for i in range(total_UE):
-            trajectory_x[t, i] = np.random.normal(loc=0, scale=multi_distance[a])
-            trajectory_y[t, i] = np.random.normal(loc=0, scale=multi_distance[a])
+            # trajectory_x[t, i] = np.random.normal(loc=0, scale=multi_distance[a])
+            # trajectory_y[t, i] = np.random.normal(loc=0, scale=multi_distance[a])
+            
+            move_x = np.random.normal(loc=0, scale=multi_distance[a]/10)
+            move_y = np.random.normal(loc=0, scale=multi_distance[a]/10)
+            trajectory_x[t, i] = trajectory_x[t - 1, i] + move_x
+            trajectory_y[t, i] = trajectory_y[t - 1, i] + move_y
             
     # Plot trajectory
     for i in range(total_UE):
@@ -160,15 +165,15 @@ for a in range(len(multi_distance)):
             prediction.append(pred)
         for u in range(total_UE):
             for i in range(num_RU):
-                # multi_prediction[a,t,u,i] = 0.85*prediction[t][0][u][i]+0.1*prediction[t][1][u][i]+0.05*prediction[t][2][u][i] 
+                multi_prediction[a,t,u,i] = 0.85*prediction[t][0][u][i]+0.1*prediction[t][1][u][i]+0.05*prediction[t][2][u][i] 
                                                         # shape(len(multi_num_UE), T, predicted_len, multi_num_UE[i], num_RU)
-                multi_prediction[a,t,u,i] = 1
+                # multi_prediction[a,t,u,i] = 2000
     multi_distance_true[a,:,:total_UE,:] = distance_true # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)
 
 
 
 
-savemat('multi_distance_nolstm1.mat', {
+savemat('multi_distance_tr.mat', {# multi_distance_nolstm1
     'T': T,
     'num_RU': num_RU,
     'total_UE': total_UE,
@@ -224,4 +229,4 @@ for a in range(len(multi_distance)):
 # plt.legend()
 # plt.grid()
 # plt.tight_layout()
-# plt.show()
+plt.show()

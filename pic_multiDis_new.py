@@ -6,7 +6,7 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_distance2.mat') # 1 5；2000 6
+params = loadmat('multi_distance_tr.mat') # 1 5；2000 6
 T = int(params['T'].squeeze())
 
 num_RU = int(params['num_RU'].squeeze())
@@ -28,7 +28,7 @@ T_ref = T-num_ref
 # T_ref = 20
 # load output
 
-output1 = loadmat('multiDis_output8.mat')
+output1 = loadmat('dis_nolstm.mat')
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_pso_sup = output1['multi_rec_dr_pso'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
@@ -52,8 +52,8 @@ multi_rec_e_hun_sup = output1['multi_rec_e_hun'].squeeze()
 # multi_mean_hun = output1['multi_mean_hun'].squeeze()
 
 # xtick = [1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00]
-xtick = [300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]
-xtick = [300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900]
+# xtick = [300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]
+xtick = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
 # plt.figure()
 # plt.plot(multi_mean_random, label='Random', marker='D', markersize=6, color='#3480b8') 
 # plt.plot(multi_mean_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
@@ -152,45 +152,47 @@ plt.plot(dr_avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
 plt.plot(dr_pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
 plt.plot(dr_op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
 # plt.plot(dr_fmincon, label='MPC-sqp', marker='D', markersize=5, color='#FFC000')
-plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423', linestyle='--')
+plt.plot(dr_hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423')
 
-plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)', fontsize=14)
+plt.xlabel('Standard Deviation', fontsize=14)
 plt.ylabel('Geometric Mean of Data Rate (Mbps)', fontsize=14)
 ax = plt.gca()
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
-plt.xticks([a for a in range(0,num_point,2)], xtick)
-plt.legend(loc='upper right')
-plt.grid()
-
-random=[]
-avg=[]
-op=[]
-pso=[]
-fmincon = []
-hun = []
-for i in range(9):
-    random.append(dr_random[i*2])
-    avg.append(dr_avg[i*2])
-    op.append(dr_op[i*2])
-    pso.append(dr_pso[i*2])
-    fmincon.append(dr_fmincon[i*2])
-    hun.append(dr_hun[i*2])
-    
-plt.figure()
-plt.plot(random, label='Static', marker='D', markersize=5, color='gray') 
-plt.plot(avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
-plt.plot(op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
-plt.plot(pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
-plt.plot(hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423')
-plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
-plt.ylabel('Geometric Mean of Data Rate (Mbps)')
-ax = plt.gca()
-ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
-tick = [400, 800, 1200, 1600, 2000]
-plt.xticks([a for a in range(0,9,2)], tick)
+plt.xticks([a for a in range(num_point)], xtick)
 plt.legend() # loc='upper right'
 plt.grid()
+plt.show()
 
+# random=[]
+# avg=[]
+# op=[]
+# pso=[]
+# fmincon = []
+# hun = []
+# for i in range(9):
+#     random.append(dr_random[i*2])
+#     avg.append(dr_avg[i*2])
+#     op.append(dr_op[i*2])
+#     pso.append(dr_pso[i*2])
+#     fmincon.append(dr_fmincon[i*2])
+#     hun.append(dr_hun[i*2])
+    
+# plt.figure()
+# plt.plot(random, label='Static', marker='D', markersize=5, color='gray') 
+# plt.plot(avg, label='Average', marker='D', markersize=5, color='#8fbc8f')
+# plt.plot(op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
+# plt.plot(pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
+# plt.plot(hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423')
+# plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (km)')
+# plt.ylabel('Geometric Mean of Data Rate (Mbps)')
+# ax = plt.gca()
+# ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
+# tick = [400, 800, 1200, 1600, 2000]
+# plt.xticks([a for a in range(0,9,2)], tick)
+# plt.legend() # loc='upper right'
+# plt.grid()
+
+'''
 fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(8, 6), height_ratios=[4, 1])
 plt.subplots_adjust(hspace=0.1)  # 调整间距
 
@@ -257,7 +259,7 @@ eff_op = dr_op/util_op_mean
 # plt.grid()
 # plt.show()
 
-
+'''
 
 # Plot - every RU
 fig, axes = plt.subplots(1, num_RU, constrained_layout=True)

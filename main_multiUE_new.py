@@ -4,14 +4,14 @@ import torch
 import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler
 from scipy.io import savemat
-np.random.seed(1)
+np.random.seed(32)
 
 num_ref = 5
 predicted_len = 3
 num_RU = 3
 num_RB = 25 # num RB/RU
 
-T = 2005
+T = 500
 
 gamma = 3
 num_setreq = 3
@@ -30,7 +30,7 @@ multi_num_UE = [2, 3, 4, 5, 6, 7, 8, 9, 10]
 multi_distance_true = np.zeros((len(multi_num_UE), T, multi_num_UE[-1]*num_RU, num_RU),dtype=float) # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)
 multi_prediction = np.zeros((len(multi_num_UE), T-num_ref, multi_num_UE[-1]*num_RU, num_RU),dtype=float) # shape(len(multi_num_UE), T, predicted_len, multi_num_UE[i], num_RU)
 
-for a in range(len(multi_num_UE)):
+for a in range(7,len(multi_num_UE)):
     UERU = multi_num_UE[a] # num of UE under every RU
     total_UE = UERU * num_RU
     
@@ -53,21 +53,23 @@ for a in range(len(multi_num_UE)):
     trajectory_y = np.zeros((T, total_UE))
 
     # Trajectory
-    trajectory_x[0] = locux
-    trajectory_y[0] = locuy
-    for t in range(T):
-        for i in range(total_UE):
-            trajectory_x[t, i] = np.random.normal(loc=0, scale=500)
-            trajectory_y[t, i] = np.random.normal(loc=0, scale=500)
-                     
-    # Plot trajectory
+    # for t in range(T):
+    #     for i in range(total_UE):
+    #         trajectory_x[t, i] = np.random.normal(loc=0, scale=500)
+    #         trajectory_y[t, i] = np.random.normal(loc=0, scale=500)
+    
     for i in range(total_UE):
-        plt.plot(trajectory_x.T[i], trajectory_y.T[i])
-    plt.scatter(locrux, locruy)
-    plt.title('UE Trajectory')
-    plt.grid()
-    # plt.show()
-
+        trajectory_x[0, i] = np.random.normal(loc=0, scale=2000)
+        trajectory_y[0, i] = np.random.normal(loc=0, scale=2000)
+        for t in range(1,T):
+            # trajectory_x[t, i] = np.random.normal(loc=0, scale=multi_distance[a])
+            # trajectory_y[t, i] = np.random.normal(loc=0, scale=multi_distance[a])
+            move_x = np.random.normal(loc=0, scale=100)
+            move_y = np.random.normal(loc=0, scale=100)
+            trajectory_x[t, i] = trajectory_x[t - 1, i] + move_x
+            trajectory_y[t, i] = trajectory_y[t - 1, i] + move_y
+ 
+            
     # Distance
     distance_true = np.zeros((T, total_UE, num_RU))
     for t in range(T):
@@ -127,7 +129,7 @@ for a in range(len(multi_num_UE)):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     loss_fn = nn.MSELoss()
 
-    for epoch in range(300):
+    for epoch in range(500):
         model.train()
         output = model(X_train)
         loss = loss_fn(output, Y_train)
@@ -158,15 +160,35 @@ for a in range(len(multi_num_UE)):
         for u in range(total_UE):
             for i in range(num_RU):
                 # multi_prediction[a,t,u,i] = 2000
-                multi_prediction[a,t,u,i] = 0.85*prediction[t][0][u][i]+0.1*prediction[t][1][u][i]+0.05*prediction[t][2][u][i] 
+                multi_prediction[a,t,u,i] = 0.9*prediction[t][0][u][i]+0.05*prediction[t][1][u][i]+0.05*prediction[t][2][u][i] 
                                                         # shape(len(multi_num_UE), T, predicted_len, multi_num_UE[i], num_RU)
     multi_distance_true[a,:,:total_UE,:] = distance_true # shape(len(multi_num_UE), T, multi_num_UE[i], num_RU)
  
 loss = (4*np.pi*fc/(3*1e8))**(-2)
-multi_distance_true = multi_distance_true
-multi_prediction = multi_prediction
 
-savemat('multi_UE_sup4_2000.mat', {
+# Plot trajectory
+# ue_x = trajectory_x[0, :]
+# ue_y = trajectory_y[0, :]
+# ru_coords = np.stack((locrux, locruy), axis=-1)
+# for i in range(total_UE):
+#     ue_coord = np.array([ue_x[i], ue_y[i]])
+#     distances = np.linalg.norm(ru_coords - ue_coord, axis=1)
+#     closest_ru_idx = np.argmin(distances)
+#     closest_ru = ru_coords[closest_ru_idx]
+
+#     # 画连线
+#     plt.plot([ue_x[i], closest_ru[0]], [ue_y[i], closest_ru[1]], 'gray', linestyle='--', linewidth=0.8)
+# for i in range(total_UE):
+#     plt.scatter(trajectory_x[0,i], trajectory_y[0,i])
+# plt.scatter(locrux, locruy)
+# plt.title('UE Trajectory')
+# plt.xlim([-6000,6000])
+# plt.ylim([-6000,6000])
+# plt.grid()
+# plt.legend()
+# plt.show()
+
+savemat('multi_UE_2.mat', {
     'T': T,
     'num_RU': num_RU,
     'multi_num_UE': multi_num_UE,
@@ -193,7 +215,7 @@ plt.figure() # prediction & true distance
 pred_array = np.array(prediction)  # shape: (T - num_ref, predicted_len, total_UE, num_RU)
 pred_distance = []
 for i in range(pred_array.shape[0] - predicted_len + 1):
-    pred_distance.append(pred_array[i, 0, 1,1])
+    pred_distance.append(pred_array[i, 0, 1, 1])
 
 plt.plot(pred_distance, 'b', label='Predicted Distance')
 true_distance = distance_true[num_ref:num_ref + (T - num_ref - predicted_len + 1),1,1]  # (T - num_ref - predicted_len + 1,)

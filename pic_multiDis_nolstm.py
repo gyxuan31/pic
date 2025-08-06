@@ -6,7 +6,7 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_distance2.mat') # 1 5；2000 6
+params = loadmat('multi_distance_tr.mat') # 1 5；2000 6
 T = int(params['T'].squeeze())
 
 num_RU = int(params['num_RU'].squeeze())
@@ -28,15 +28,15 @@ T_ref = T-num_ref
 # T_ref = 20
 # load output
 
-output = loadmat('multiDis_output8.mat')
-output1 = loadmat('multiDis_output9.mat')
+output = loadmat('dis.mat')
+output1 = loadmat('dis_nolstm.mat')
 
 
 multi_rec_dr_pso = output1['multi_rec_dr_pso'].squeeze()
-multi_rec_dr_op = output['multi_rec_dr_op'].squeeze()
+multi_rec_dr_op = output1['multi_rec_dr_op'].squeeze()
 multi_rec_dr_hun = output['multi_rec_dr_hun'].squeeze()
 
-multi_rec_dr_op_n = output1['multi_rec_dr_op'].squeeze()
+multi_rec_dr_op_n = output['multi_rec_dr_op'].squeeze()
 multi_rec_dr_hun_n = output1['multi_rec_dr_hun'].squeeze()
 multi_rec_dr_pso_n = output['multi_rec_dr_pso'].squeeze()
 
@@ -55,8 +55,9 @@ multi_rec_e_hun_sup = output['multi_rec_e_hun'].squeeze()
 # multi_mean_hun = output1['multi_mean_hun'].squeeze()
 
 # xtick = [1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00]
-xtick = [300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]
-xtick = [300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900]
+# xtick = [300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]
+# xtick = [300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900]
+xtick = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
 # plt.figure()
 # plt.plot(multi_mean_random, label='Random', marker='D', markersize=6, color='#3480b8') 
 # plt.plot(multi_mean_avg, label='Average', marker='D', markersize=6, color='#8fbc8f')
@@ -141,13 +142,12 @@ for a in range(num_point):
     dr_op[idx] = (np.e ** multi_rec_dr_op[a])**(1/total_UE)
     dr_pso_n[idx] = (np.e ** multi_rec_dr_pso_n[a])**(1/total_UE)
     dr_op_n[idx] = (np.e ** multi_rec_dr_op_n[a])**(1/total_UE)
-    dr_pso[idx] = (np.e ** multi_rec_dr_pso[a//2])**(1/total_UE)
+    dr_pso[idx] = (np.e ** multi_rec_dr_pso[a])**(1/total_UE)
     dr_hun_n[idx] = (np.e ** multi_rec_dr_hun_n[a])**(1/total_UE)
     dr_hun[idx] = (np.e ** multi_rec_dr_hun[a])**(1/total_UE)
-print(multi_rec_dr_hun)
-print(multi_rec_dr_hun_n)
 print(multi_rec_dr_op)
-print(multi_rec_dr_hun)
+print(multi_rec_dr_op_n)
+
 
 # Plot - Geometric Mean of Data Rate
 # plt.figure()
@@ -172,29 +172,37 @@ op=[]
 pso=[]
 hun_n = []
 hun = []
-for i in range(9):
-    op_n.append(dr_op_n[i*2])
-    pso_n.append(dr_pso_n[i*2])
-    op.append(dr_op[i*2])
-    pso.append(dr_pso[i*2])
-    hun_n.append(dr_hun_n[i*2])
-    hun.append(dr_hun[i*2])
-print(hun_n)
+op_n = dr_op_n
+pso_n = dr_pso_n
+hun_n = dr_hun_n
+op = dr_op
+pso = dr_pso
+hun = dr_hun
+# for i in range(9):
+#     op_n.append(dr_op_n[i*2])
+#     pso_n.append(dr_pso_n[i*2])
+#     op.append(dr_op[i*2])
+#     pso.append(dr_pso[i*2])
+#     hun_n.append(dr_hun_n[i*2])
+#     hun.append(dr_hun[i*2])
+# print(hun_n)
 plt.figure()
-plt.plot(op_n, label='GA-N', marker='D', markersize=5, color='#FFC000', linestyle='--') 
-plt.plot(op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
 plt.plot(pso_n, label='PSO-N', marker='D', markersize=5, color='#3480b8', linestyle='--')
 plt.plot(pso, label='MPC-PSO', marker='D', markersize=5, color='#3480b8')
 plt.plot(hun_n, label='HUN-N', marker='D', markersize=5, color='#c82423', linestyle='--')
 plt.plot(hun, label='MPC-HUN', marker='D', markersize=5, color='#c82423')
+plt.plot(op_n, label='GA-N', marker='D', markersize=5, color='#FFC000', linestyle='--') 
+plt.plot(op, label='MPC-GA', marker='D', markersize=5, color='#FFC000')
 plt.xlabel('Standard Deviation of the Distance from UE to Serving RU (m)')
 plt.ylabel('Geometric Mean of Data Rate (Mbps)')
 ax = plt.gca()
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
-tick = [400, 800, 1200, 1600, 2000]
-plt.xticks([a for a in range(0,9,2)], tick)
+# tick = [400, 800, 1200, 1600, 2000]
+# plt.xticks([a for a in range(0,9,2)], tick)
 plt.legend() # loc='upper right'
 plt.grid()
+# print(op)
+# print(hun)
 
 fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(8, 6), height_ratios=[4, 1])
 plt.subplots_adjust(hspace=0.1)  # 调整间距

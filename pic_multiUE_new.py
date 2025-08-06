@@ -6,8 +6,8 @@ np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 np.set_printoptions(precision=2, suppress=True)
 
 # load parameters
-params = loadmat('multi_UE_sup1.mat')
-T = int(params['T'].squeeze())
+params = loadmat('multi_UE_tr.mat')
+T = 200# int(params['T'].squeeze())
 num_RU = int(params['num_RU'].squeeze())
 num_RB = int(params['num_RB'].squeeze())
 num_ref = int(params['num_ref'].squeeze())
@@ -27,23 +27,23 @@ loss = (4*np.pi*fc/(3*1e8))**(-2)
 num_point = 9 #len(multi_num_UE) # number of UE group
 
 T_ref = T-num_ref
-# T_ref = 5
+# T_ref = 20
 
 # load output
 
-output1 = loadmat('multi_output2.mat')
+output1 = loadmat('UE1_nolstm.mat') #multi_output2
 multi_rec_dr_random_sup = output1['multi_rec_dr_random'].squeeze()
 multi_rec_dr_avg_sup = output1['multi_rec_dr_avg'].squeeze()
 multi_rec_dr_op_sup = output1['multi_rec_dr_op'].squeeze()
 multi_rec_dr_pso_sup = output1['multi_rec_dr_pso'].squeeze()
-multi_rec_dr_fmincon_sup = output1['multi_rec_dr_fmincon'].squeeze()
+multi_rec_dr_fmincon_sup = output1['multi_rec_dr_op'].squeeze()
 multi_rec_dr_hun_sup = output1['multi_rec_dr_hun'].squeeze()
 
 multi_rec_e_random_sup = output1['multi_rec_e_random'].squeeze()
 multi_rec_e_avg_sup = output1['multi_rec_e_avg'].squeeze()
 multi_rec_e_op_sup = output1['multi_rec_e_op'].squeeze()
 multi_rec_e_pso_sup = output1['multi_rec_e_pso'].squeeze()
-multi_rec_e_fmincon_sup = output1['multi_rec_e_fmincon'].squeeze()
+multi_rec_e_fmincon_sup = output1['multi_rec_e_op'].squeeze()
 multi_rec_e_hun_sup = output1['multi_rec_e_hun'].squeeze()
 
 util_op_mean = np.zeros(num_point)
@@ -97,7 +97,7 @@ for a in range(num_point): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
         
         # fmincon
         util_fmincon_list = np.any(e_fmin, axis=0)
-        util_pso.append(np.sum(util_fmincon_list) / float(num_RB))
+        util_fmincon.append(np.sum(util_fmincon_list) / float(num_RB))
         
         # HUN
         util_hun_list = np.any(e_hun, axis=0)
@@ -124,11 +124,11 @@ for a in range(num_point): # total_UE=[6 12 24 30] final[6 12 18(2) 24 30 36(5)]
     dr_hun[idx] = (np.e ** multi_rec_dr_hun_sup[a])**(1/total_UE)
     print(dr_random[idx])
 
-print(multi_rec_dr_op_sup)
-print(multi_rec_dr_hun_sup)
+# print(multi_rec_dr_op_sup)
+# print(multi_rec_dr_hun_sup)
 # print(dr_avg)
-print(dr_hun)
-print(dr_op)
+# print(dr_hun)
+# print(dr_op)
 
 # Plot - Geometric Mean of Data Rate
 plt.figure()
@@ -179,6 +179,11 @@ plt.grid()
 plt.show()
 '''
 
+eff_hun = np.zeros(3)
+eff_op = np.zeros(3)
+eff_random = np.zeros(3)
+eff_pso = np.zeros(3)
+eff_avg = np.zeros(3)
 
 # Plot - every RU
 fig, axes = plt.subplots(1, num_RU, constrained_layout=True)
@@ -199,7 +204,7 @@ for rho in range(num_RU):
         
     for a in range(num_point): # len(multi_num_UE)
         total_UE = int(multi_num_UE[a] * num_RU)
-        dist = distance_sup[a,:,:total_UE,:].reshape((T, total_UE, num_RU))
+        dist = distance_sup[a,:T,:total_UE,:].reshape((T, total_UE, num_RU))
 
         util_op = np.zeros(T_ref)
         util_random = np.zeros(T_ref)
@@ -215,6 +220,9 @@ for rho in range(num_RU):
             e_pso =  np.array(multi_rec_e_pso_sup[a,t,0:total_UE,:])
             e_fmincon =  np.array(multi_rec_e_fmincon_sup[a,t,0:total_UE,:])
             e_hun = np.array(multi_rec_e_hun_sup[a,t,0:total_UE,:])
+            # print('op',e_op)
+            # print('hun',e_hun)
+            # print('pso',e_pso)
             
             # calculate UE connect which RU
             user_RU_norm = np.zeros(total_UE, dtype=int)
@@ -368,6 +376,7 @@ for rho in range(num_RU):
         util_ru_pso[idx] = ru_pso[a] / np.mean(np.array(util_pso))
         # util_ru_fmincon[idx] = np.mean(np.array(util_fmin))
         util_ru_hun[idx] = ru_hun[a] / np.mean(np.array(util_hun))
+        
         '''
         
         
@@ -381,7 +390,7 @@ for rho in range(num_RU):
 
     ax = axes[rho]
     
-    # plot
+    # PLOT
     ax.plot(util_ru_random, linewidth=1.5, color='gray', label='Static', marker='D', markersize=5)
     ax.plot(util_ru_avg, linewidth=1.5, color='#8fbc8f', label='Average', marker='D', markersize=5)
     ax.plot(util_ru_op, linewidth=1.5, color='#FFC000', label='MPC-GA', marker='D', markersize=5)
@@ -390,26 +399,36 @@ for rho in range(num_RU):
     ax.plot(util_ru_hun, linewidth=1.5, color='#c82423', label='MPC-HUN', marker='D', markersize=5)
     ax.set_ylim(0, 1)
     ax.set_ylabel(f'RB utilization of RU {rho+1} (%)', fontsize=14)
+    ax.set_xlabel('UE number', fontsize=14)
     print(np.mean(util_ru_hun))
     
-    # # bar
-    # bar_width = 0.15
-    # x = np.arange(num_point)
-    # ax.bar(x - 2*bar_width,  util_ru_hun,    width=bar_width, color='#c82423', label='MPC-HUN')
-    # ax.bar(x - bar_width,                util_ru_op,     width=bar_width, color='#FFC000', label='MPC-GA')
-    # ax.bar(x,    util_ru_pso,    width=bar_width, color='#3480b8',    label='MPC-PSO')
-    # ax.bar(x + bar_width, util_ru_random, width=bar_width, color='gray', label='Static')
-    # ax.bar(x + 2*bar_width,    util_ru_avg,    width=bar_width, color='#8fbc8f', label='Average')
-    # # ax.bar(x + 2*bar_width,  util_ru_fmincon, width=bar_width, color='#FFC000', label='MPC-fmincon')
-    # ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
-    # ax.set_ylabel(f'RB efficiency of RU {rho+1}')
+    eff_hun[rho] = np.mean(util_ru_hun)
+    eff_avg[rho] = np.mean(util_ru_avg)
+    eff_op[rho] = np.mean(util_ru_op)
+    eff_pso[rho] = np.mean(util_ru_pso)
+    eff_random[rho] = np.mean(util_ru_random)
 
 
-    ax.set_xlabel('UE number', fontsize=14)
     ax.grid(True)
     ax.set_xticks([a for a in range(num_point)])
     ax.set_xticklabels(xtick)
     
 axes[rho].legend(loc='upper right')
+
+# bar
+bar_width = 0.15
+x = np.arange(3)
+plt.figure()
+plt.bar(x - 2*bar_width,  eff_hun, width=bar_width, color='#c82423', label='MPC-HUN')
+plt.bar(x - bar_width, eff_op, width=bar_width, color='#FFC000', label='MPC-GA')
+plt.bar(x, eff_pso, width=bar_width, color='#3480b8',    label='MPC-PSO')
+plt.bar(x + bar_width, eff_random, width=bar_width, color='gray', label='Static')
+plt.bar(x + 2*bar_width,    eff_avg,    width=bar_width, color='#8fbc8f', label='Average')
+ax = plt.gca()
+ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x * 1e-6:.1f}'))
+plt.ylabel('RB efficiency (Mbps)', fontsize=14)
+plt.xlabel('RU index', fontsize=14)
+plt.xticks([0,1,2],['RU1','RU2','RU3'])
+plt.legend()
 
 plt.show()
